@@ -64,6 +64,7 @@ Wire contract: [`src/main/openapi/openapi.yml`](src/main/openapi/openapi.yml) (R
 | `GET` | `/api/articles/{slug}/comments` | List an article's comments (auth optional) |
 | `POST` | `/api/articles/{slug}/comments` | Comment on an article |
 | `DELETE` | `/api/articles/{slug}/comments/{id}` | Delete a comment (comment or article author) |
+| `GET` | `/api/tags` | List tags |
 
 ## Running the application in dev mode
 
