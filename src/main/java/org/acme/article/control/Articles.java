@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import org.acme.article.entity.Article;
+import org.acme.favorites.control.Favorites;
 import org.acme.profile.control.Profiles;
 import org.acme.user.control.Rejection;
 import org.acme.user.entity.User;
@@ -19,17 +20,21 @@ public class Articles {
     @Inject
     Profiles profiles;
 
+    @Inject
+    Favorites favorites;
+
     @Transactional
     public ArticlePage list(User caller, String tag, String author, String favorited, int limit, int offset) {
-        if (favorited != null) {
-            return new ArticlePage(List.of(), 0);
-        }
         var filter = new StringBuilder();
         if (tag != null) {
             filter.append(" and :tag member of a.tagList");
         }
         if (author != null) {
             filter.append(" and a.author.username = :author");
+        }
+        if (favorited != null) {
+            filter.append(
+                    " and a.id in (select f.article.id from Favorite f where f.user.username = :favorited)");
         }
         var select = session.createSelectionQuery(
                 "from Article a where 1=1" + filter + " order by a.createdAt desc, a.id desc", Article.class);
@@ -42,6 +47,10 @@ public class Articles {
         if (author != null) {
             select.setParameter("author", author);
             count.setParameter("author", author);
+        }
+        if (favorited != null) {
+            select.setParameter("favorited", favorited);
+            count.setParameter("favorited", favorited);
         }
         var articles = select.setFirstResult(offset).setMaxResults(limit).getResultList();
         return new ArticlePage(views(caller, articles), count.getSingleResult());
@@ -97,10 +106,11 @@ public class Articles {
     public void delete(User caller, String slug) {
         var article = article(slug);
         rejectIfNotAuthor(caller, article);
+        favorites.unmarkAll(article);
         session.remove(article);
     }
 
-    Article article(String slug) {
+    public Article article(String slug) {
         var article = findBySlug(slug);
         if (article == null) {
             throw Rejection.notFound("article");
@@ -121,10 +131,16 @@ public class Articles {
     }
 
     List<ArticleView> views(User caller, List<Article> articles) {
-        return articles.stream().map(article -> view(caller, article)).toList();
+        var marked = favorites.markedIds(caller, articles);
+        var counts = favorites.counts(articles);
+        return articles.stream()
+                .map(article -> new ArticleView(article, profiles.get(caller, article.author.username),
+                        marked.contains(article.id), counts.getOrDefault(article.id, 0)))
+                .toList();
     }
 
-    ArticleView view(User caller, Article article) {
-        return new ArticleView(article, profiles.get(caller, article.author.username));
+    public ArticleView view(User caller, Article article) {
+        return new ArticleView(article, profiles.get(caller, article.author.username),
+                favorites.marked(caller, article), favorites.countFor(article));
     }
 }

@@ -2,6 +2,8 @@ package org.acme.article.boundary;
 
 import static org.acme.article.ArticleRequirement.Rn.R1_1;
 import static org.acme.article.ArticleRequirement.Rn.R1_10;
+import static org.acme.article.ArticleRequirement.Rn.R1_11;
+import static org.acme.article.ArticleRequirement.Rn.R1_12;
 import static org.acme.article.ArticleRequirement.Rn.R1_2;
 import static org.acme.article.ArticleRequirement.Rn.R1_3;
 import static org.acme.article.ArticleRequirement.Rn.R1_4;
@@ -15,11 +17,14 @@ import static org.acme.article.ArticleRequirement.Rn.R2_2;
 import static org.acme.article.ArticleRequirement.Rn.R2_3;
 import static org.acme.article.ArticleRequirement.Rn.R2_4;
 import static org.acme.article.ArticleRequirement.Rn.R2_5;
+import static org.acme.article.ArticleRequirement.Rn.R2_6;
 import static org.acme.article.ArticleRequirement.Rn.R3_1;
 import static org.acme.article.ArticleRequirement.Rn.R3_2;
 import static org.acme.article.ArticleRequirement.Rn.R3_3;
 import static org.acme.article.ArticleRequirement.Rn.R3_4;
 import static org.acme.article.ArticleRequirement.Rn.R3_5;
+import static org.acme.article.ArticleRequirement.Rn.R3_6;
+import static org.acme.article.ArticleRequirement.Rn.R3_7;
 import static org.acme.article.ArticleRequirement.Rn.R4_1;
 import static org.acme.article.ArticleRequirement.Rn.R4_2;
 import static org.acme.article.ArticleRequirement.Rn.R4_3;
@@ -37,6 +42,7 @@ import static org.acme.article.ArticleRequirement.Rn.R6_1;
 import static org.acme.article.ArticleRequirement.Rn.R6_2;
 import static org.acme.article.ArticleRequirement.Rn.R6_3;
 import static org.acme.article.ArticleRequirement.Rn.R6_4;
+import static org.acme.article.ArticleRequirement.Rn.R6_5;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
@@ -77,7 +83,7 @@ public class ArticlesResource {
 
     @GET
     @PermitAll
-    @ArticleRequirement({ R1_1, R1_2, R1_3, R1_4, R1_5, R1_6, R1_7, R1_8, R1_9, R1_10 })
+    @ArticleRequirement({ R1_1, R1_2, R1_3, R1_4, R1_5, R1_6, R1_7, R1_8, R1_9, R1_10, R1_11, R1_12 })
     public ArticlesResponse listArticles(@QueryParam("tag") String tag, @QueryParam("author") String author,
             @QueryParam("favorited") String favorited, @DefaultValue("20") @QueryParam("limit") int limit,
             @DefaultValue("0") @QueryParam("offset") int offset,
@@ -89,7 +95,7 @@ public class ArticlesResource {
     @GET
     @Path("/feed")
     @PermitAll
-    @ArticleRequirement({ R2_1, R2_2, R2_3, R2_4, R2_5 })
+    @ArticleRequirement({ R2_1, R2_2, R2_3, R2_4, R2_5, R2_6 })
     public ArticlesResponse getFeed(@DefaultValue("20") @QueryParam("limit") int limit,
             @DefaultValue("0") @QueryParam("offset") int offset,
             @HeaderParam("Authorization") String authorization) {
@@ -110,7 +116,7 @@ public class ArticlesResource {
     @GET
     @Path("/{slug}")
     @PermitAll
-    @ArticleRequirement({ R3_1, R3_2, R3_3, R3_4, R3_5 })
+    @ArticleRequirement({ R3_1, R3_2, R3_3, R3_4, R3_5, R3_6, R3_7 })
     public ArticleResponse getArticle(@PathParam("slug") String slug,
             @HeaderParam("Authorization") String authorization) {
         var caller = authorization == null ? null : caller(authorization);
@@ -131,7 +137,7 @@ public class ArticlesResource {
     @DELETE
     @Path("/{slug}")
     @PermitAll
-    @ArticleRequirement({ R6_1, R6_2, R6_3, R6_4 })
+    @ArticleRequirement({ R6_1, R6_2, R6_3, R6_4, R6_5 })
     public Response deleteArticle(@PathParam("slug") String slug,
             @HeaderParam("Authorization") String authorization) {
         articles.delete(caller(authorization), slug);

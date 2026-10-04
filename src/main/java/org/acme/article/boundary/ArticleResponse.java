@@ -11,7 +11,7 @@ public record ArticleResponse(FullArticle article) {
     public static ArticleResponse of(ArticleView view) {
         var article = view.article();
         return new ArticleResponse(new FullArticle(article.slug, article.title, article.description, article.body,
-                article.tagList, article.createdAt, article.updatedAt, false, 0,
+                article.tagList, article.createdAt, article.updatedAt, view.favorited(), view.favoritesCount(),
                 ProfileResponse.of(view.author()).profile()));
     }
 

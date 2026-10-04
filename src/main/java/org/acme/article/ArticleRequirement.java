@@ -35,6 +35,10 @@ public @interface ArticleRequirement {
         R1_9("R1.9", "While no session token identifies a caller, the capability shall report each returned article's author following indicator unset."),
         /// If a session token is presented but expired or invalid, then the capability shall reject the request.
         R1_10("R1.10", "If a session token is presented but expired or invalid, then the capability shall reject the request."),
+        /// While the caller is identified by a valid session token, the capability shall report each returned article's favorite indicator according to whether the caller has marked it favorite, and each favorite count as the number of favorite marks recorded on that article.
+        R1_11("R1.11", "While the caller is identified by a valid session token, the capability shall report each returned article's favorite indicator according to whether the caller has marked it favorite, and each favorite count as the number of favorite marks recorded on that article."),
+        /// While no session token identifies a caller, the capability shall report each returned article's favorite indicator unset, and each favorite count as the number of favorite marks recorded on that article.
+        R1_12("R1.12", "While no session token identifies a caller, the capability shall report each returned article's favorite indicator unset, and each favorite count as the number of favorite marks recorded on that article."),
         /// While the request carries a valid session token, when the feed is requested, the capability shall return the most recent articles authored by users the caller follows, ordered most recent first, together with their total count.
         R2_1("R2.1", "While the request carries a valid session token, when the feed is requested, the capability shall return the most recent articles authored by users the caller follows, ordered most recent first, together with their total count."),
         /// While none of the users the caller follows has articles, when the feed is requested, the capability shall return an empty result.
@@ -45,6 +49,8 @@ public @interface ArticleRequirement {
         R2_4("R2.4", "While the request carries a valid session token, the capability shall report each returned article's author following indicator set."),
         /// If the session token is absent, expired, or invalid, then the capability shall reject the request.
         R2_5("R2.5", "If the session token is absent, expired, or invalid, then the capability shall reject the request."),
+        /// The capability shall report each returned article's favorite indicator and count under the same rules as article listing.
+        R2_6("R2.6", "The capability shall report each returned article's favorite indicator and count under the same rules as article listing."),
         /// When an article is requested for the slug of an existing article, the capability shall return the article's full representation — slug, title, description, body, tag list, creation and update times, favorite indicator and count, and author profile.
         R3_1("R3.1", "When an article is requested for the slug of an existing article, the capability shall return the article's full representation — slug, title, description, body, tag list, creation and update times, favorite indicator and count, and author profile."),
         /// While the caller identified by a valid session token follows the article's author, the capability shall return the article with its author following indicator set.
@@ -55,6 +61,10 @@ public @interface ArticleRequirement {
         R3_4("R3.4", "If a session token is presented but expired or invalid, then the capability shall reject the request."),
         /// If no article exists for the requested slug, then the capability shall reject the request.
         R3_5("R3.5", "If no article exists for the requested slug, then the capability shall reject the request."),
+        /// While the identified caller has marked the article favorite, the capability shall return the article with its favorite indicator set and its favorite count as the number of marks recorded on it.
+        R3_6("R3.6", "While the identified caller has marked the article favorite, the capability shall return the article with its favorite indicator set and its favorite count as the number of marks recorded on it."),
+        /// While no session token identifies a caller, or the identified caller has not marked the article favorite, the capability shall return the article with its favorite indicator unset and its favorite count as the number of marks recorded on it.
+        R3_7("R3.7", "While no session token identifies a caller, or the identified caller has not marked the article favorite, the capability shall return the article with its favorite indicator unset and its favorite count as the number of marks recorded on it."),
         /// While the request carries a valid session token, when an article is created with a title, description, and body, the capability shall record the article with the caller as author, assign it a slug derived from its title, stamp its creation and update times, and return the created article.
         R4_1("R4.1", "While the request carries a valid session token, when an article is created with a title, description, and body, the capability shall record the article with the caller as author, assign it a slug derived from its title, stamp its creation and update times, and return the created article."),
         /// When an article is created with a tag list, the capability shall record the article carrying those tags; absent a tag list, the capability shall record the article carrying no tags.
@@ -88,7 +98,9 @@ public @interface ArticleRequirement {
         /// If no article exists for the requested slug, then the capability shall reject the request.
         R6_3("R6.3", "If no article exists for the requested slug, then the capability shall reject the request."),
         /// If the identified caller is not the article's author, then the capability shall reject the request.
-        R6_4("R6.4", "If the identified caller is not the article's author, then the capability shall reject the request.");
+        R6_4("R6.4", "If the identified caller is not the article's author, then the capability shall reject the request."),
+        /// When an article is removed, the capability shall remove every favorite mark recorded on it.
+        R6_5("R6.5", "When an article is removed, the capability shall remove every favorite mark recorded on it.");
 
         private final String id;
         private final String statement;

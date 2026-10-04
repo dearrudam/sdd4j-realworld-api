@@ -16,7 +16,7 @@ public record ArticlesResponse(List<ArticleSummary> articles, long articlesCount
     static ArticleSummary summary(ArticleView view) {
         var article = view.article();
         return new ArticleSummary(article.slug, article.title, article.description, article.tagList,
-                article.createdAt, article.updatedAt, false, 0,
+                article.createdAt, article.updatedAt, view.favorited(), view.favoritesCount(),
                 ProfileResponse.of(view.author()).profile());
     }
 
