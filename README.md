@@ -19,6 +19,17 @@ graph LR
 ```
 <!-- sdd4j:generated:end -->
 
+## API
+
+Wire contract: [`src/main/openapi/openapi.yml`](src/main/openapi/openapi.yml) (RealWorld Conduit API v2.0.0). Base path `/api`; protected endpoints take `Authorization: Token <jwt>`; errors use `{"errors":{"field":["message"]}}`.
+
+| Method | Path | Operation |
+| --- | --- | --- |
+| `POST` | `/api/users` | Register a user |
+| `POST` | `/api/users/login` | Authenticate (login) |
+| `GET` | `/api/user` | Current user |
+| `PUT` | `/api/user` | Update current user |
+
 ## Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:
