@@ -42,7 +42,7 @@ graph LR
 
 ## API
 
-Wire contract: [`src/main/openapi/openapi.yml`](src/main/openapi/openapi.yml) (RealWorld Conduit API v2.0.0). Base path `/api`; protected endpoints take `Authorization: Token <jwt>`; errors use `{"errors":{"field":["message"]}}`.
+Wire contract: [`src/main/openapi/openapi.yml`](src/main/openapi/openapi.yml) (RealWorld Conduit API v2.0.0). Base path `/api`; protected endpoints take `Authorization: Token <jwt>`; errors use `{"errors":{"field":["message"]}}`. Conformance: the upstream RealWorld Hurl suite (`specs/api/hurl` in `realworld-apps/realworld`, `HOST=http://localhost:8080/api ./run-api-tests-hurl.sh`) passes 13/13 files, 154/154 requests.
 
 | Method | Path | Operation |
 | --- | --- | --- |
