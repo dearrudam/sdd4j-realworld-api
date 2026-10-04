@@ -1,0 +1,84 @@
+name: API Conformance
+
+# Runs the upstream RealWorld Hurl conformance suite (realworld-apps/realworld,
+# specs/api/hurl) against the packaged application on every non-draft PR.
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hurl-conformance:
+    # "Published" PRs only — draft PRs are skipped until marked ready for review.
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+
+      - name: Build and unit-test
+        run: ./mvnw -B verify
+
+      - name: Fetch upstream Hurl suite
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse \
+            https://github.com/realworld-apps/realworld.git "$RUNNER_TEMP/realworld"
+          git -C "$RUNNER_TEMP/realworld" sparse-checkout set specs/api
+
+      - name: Install Hurl
+        run: |
+          curl -sSfL -o /tmp/hurl.tar.gz \
+            https://github.com/Orange-OpenSource/hurl/releases/download/8.0.1/hurl-8.0.1-x86_64-unknown-linux-gnu.tar.gz
+          tar -xzf /tmp/hurl.tar.gz -C /tmp
+          echo "/tmp/hurl-8.0.1-x86_64-unknown-linux-gnu/bin" >> "$GITHUB_PATH"
+
+      - name: Generate ephemeral JWT keypair
+        # Dev/test get auto-generated keys; %prod requires real key material.
+        # Ephemeral per-run keys are fine for CI — nothing is persisted.
+        run: |
+          openssl genrsa -out /tmp/jwt-private-pkcs1.pem 2048
+          openssl pkcs8 -topk8 -nocrypt -in /tmp/jwt-private-pkcs1.pem -out /tmp/jwt-private.pem
+          openssl rsa -in /tmp/jwt-private-pkcs1.pem -pubout -out /tmp/jwt-public.pem
+
+      - name: Start the application
+        env:
+          # %prod declares no JDBC URL — inject an in-memory H2.
+          QUARKUS_DATASOURCE_JDBC_URL: jdbc:h2:mem:ci
+          SMALLRYE_JWT_SIGN_KEY_LOCATION: file:///tmp/jwt-private.pem
+          MP_JWT_VERIFY_PUBLICKEY_LOCATION: file:///tmp/jwt-public.pem
+        run: |
+          java -jar target/quarkus-app/quarkus-run.jar > app.log 2>&1 &
+          echo $! > app.pid
+
+      - name: Wait for readiness
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8080/api/tags > /dev/null; then
+              echo "Application is ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Application did not become ready; log follows"
+          cat app.log
+          exit 1
+
+      # The suite's requests are written as {{host}}/api/... — HOST is the server root.
+      - name: Run Hurl conformance suite
+        run: HOST=http://localhost:8080 "$RUNNER_TEMP/realworld/specs/api/run-api-tests-hurl.sh"
+
+      - name: Upload diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: conformance-diagnostics
+          path: app.log
+          retention-days: 14
