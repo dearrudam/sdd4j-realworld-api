@@ -8,17 +8,21 @@
 ## Capabilities
 - **user** — manage user accounts: registration, authentication, current-user retrieval, and profile updates · [`spec`](src/main/java/org/acme/user/package-info.java)
 - **profile** — present a user's public representation and manage the follow relationships between users · [`spec`](src/main/java/org/acme/profile/package-info.java)
+- **article** — publish, list, read, update, and delete articles — including tag, author, and favorited-by filtering and a personal feed · [`spec`](src/main/java/org/acme/article/package-info.java)
 
 ## Components
 <!-- projection of the system doc's ## Components wiring; nodes = capabilities, edges = declared calls/events; never inferred from code -->
 ```mermaid
 graph LR
+    article([article])
     profile([profile])
     user([user])
+    article --> profile
+    article --> user
     profile --> user
 
     classDef bc fill:#dae8fc,stroke:#6c8ebf,color:#000
-    class profile,user bc
+    class article,profile,user bc
 ```
 <!-- sdd4j:generated:end -->
 
@@ -35,6 +39,12 @@ Wire contract: [`src/main/openapi/openapi.yml`](src/main/openapi/openapi.yml) (R
 | `GET` | `/api/profiles/{username}` | Get a profile (auth optional) |
 | `POST` | `/api/profiles/{username}/follow` | Follow a user |
 | `DELETE` | `/api/profiles/{username}/follow` | Unfollow a user |
+| `GET` | `/api/articles` | List articles (tag/author/favorited filters, pagination) |
+| `GET` | `/api/articles/feed` | Articles by followed users |
+| `POST` | `/api/articles` | Create an article |
+| `GET` | `/api/articles/{slug}` | Get an article (auth optional) |
+| `PUT` | `/api/articles/{slug}` | Update an article (author only) |
+| `DELETE` | `/api/articles/{slug}` | Delete an article (author only) |
 
 ## Running the application in dev mode
 
