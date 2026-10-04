@@ -1,5 +1,7 @@
 # Conduit
 
+[![API Conformance](https://github.com/dearrudam/sdd4j-realworld-api/actions/workflows/hurl-conformance.yml/badge.svg)](https://github.com/dearrudam/sdd4j-realworld-api/actions/workflows/hurl-conformance.yml)
+
 <!-- sdd4j:generated:start — projection of the specs; do not edit; `apply` regenerates from the system doc + per-capability package docs -->
 > A spec-driven implementation of the RealWorld Conduit API on Quarkus.
 
