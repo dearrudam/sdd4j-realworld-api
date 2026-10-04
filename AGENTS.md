@@ -74,3 +74,40 @@ or OVERRIDE (fully replace the base).
 **Project-level skills** (`.agent/skills/`) are standalone files readable by any agent.
 Use `quarkus_saveSkill` to materialize the full composed skill into `.agent/skills/`,
 then edit the file directly to customize it for the project.
+
+## SDD4J
+
+Spec source:
+- format: `package-info.java` (JEP 467 Markdown doc comments)
+- source root: `src/main/java`
+- requirements style: EARS
+- trace ids: `R<n>.<m>`
+- spec language: `en`
+
+Architecture layout:
+- skill: `sdd4j-bce`
+- scope: primary project architecture
+- base package: `org.acme`
+- component package pattern: `org.acme.<component>`
+- boundary package: `boundary`
+- control package: `control`
+- entity package: `entity`
+- test package mirrors main package: true
+
+Wire contract:
+- authoritative file: `src/main/openapi/openapi.yml` — extract of the official RealWorld Conduit API spec v2.0.0 (`realworld-apps/realworld`, `specs/api/openapi.yml`), currently the `User and Authentication` slice
+- boundary operations bind to its declared paths, `{"user":{...}}` envelopes, schemas, status codes, keyed `{errors:{field:[msgs]}}` shape, and `Token` security scheme
+- extend the file per capability as specs land; never edit it to match code — the file is the source of truth for the wire shape
+- external conformance gate: the upstream Hurl suite (`specs/api/hurl` in `realworld-apps/realworld`, run with `HOST=<base>/api ./run-api-tests-hurl.sh`)
+
+Stack:
+- skill: `microprofile-server`
+- build tool: Maven
+- verification: `quarkus_callTool` with toolName `devui-testing_runTests` while the dev app is running; `./mvnw test` otherwise
+
+Traceability:
+- requirement id must resolve to its exact runner-visible `Rn.m` form through a display name, case label, symbol, or annotation consumed by the test/reporting infrastructure
+- a normalized Java identifier such as `R1_2` is valid only when it resolves to `R1.2`
+- JavaDoc and comments alone do not count
+- materialization: generated per-component `{Component}Requirement` annotation in the component root package under `src/main/java` (e.g. `org.acme.user.UserRequirement`) — `@Documented`, `@Target(METHOD)`, `@Retention(RUNTIME)`, nested `Rn` enum with one constant per statement (`R1_2` → `toString()` = `R1.2`, `statement()` = EARS sentence); regenerated wholesale by `/sdd4j apply`, never hand-edited (see `sdd4j-ears-tests/references/realizations.md`)
+- usage: `Rn` constants label the parameterized rows of the group's table-driven test so the runner displays the literal `Rn.m` id; `@{Component}Requirement({R1_1, R1_2})` marks the boundary method realizing the group, `@{Component}Requirement(R1_2)` marks a single-statement test
