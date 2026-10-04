@@ -15,13 +15,15 @@
 /// - R1.1 — When articles are listed, the capability shall return the matching articles ordered most recent first, together with the total count of matching articles.
 /// - R1.2 — While a tag filter is provided, when articles are listed, the capability shall return only articles carrying that tag.
 /// - R1.3 — While an author filter is provided, when articles are listed, the capability shall return only articles authored by that user.
-/// - R1.4 — While a favorited-by filter is provided, when articles are listed, the capability shall return only articles marked favorite by that user. _(why: the wire contract offers the filter; nothing can be favorited until `favorites` lands — see D2)_
+/// - R1.4 — While a favorited-by filter is provided, when articles are listed, the capability shall return only articles marked favorite by that user. _(why: the wire contract offers the filter; the marks are owned by `favorites` — see D4)_
 /// - R1.5 — If an author or favorited-by filter names no existing user, then the capability shall return an empty result.
 /// - R1.6 — When a listing is bounded by a limit, the capability shall return at most that many articles; absent a limit, the capability shall return at most twenty.
 /// - R1.7 — When a listing is bounded by an offset, the capability shall skip that many of the most recent matching articles; absent an offset, the capability shall skip none.
 /// - R1.8 — While the caller is identified by a valid session token, the capability shall report each returned article's author following indicator according to whether the caller follows that author.
 /// - R1.9 — While no session token identifies a caller, the capability shall report each returned article's author following indicator unset.
 /// - R1.10 — If a session token is presented but expired or invalid, then the capability shall reject the request.
+/// - R1.11 — While the caller is identified by a valid session token, the capability shall report each returned article's favorite indicator according to whether the caller has marked it favorite, and each favorite count as the number of favorite marks recorded on that article.
+/// - R1.12 — While no session token identifies a caller, the capability shall report each returned article's favorite indicator unset, and each favorite count as the number of favorite marks recorded on that article.
 ///
 /// ### R2: Get the caller's feed
 /// - R2.1 — While the request carries a valid session token, when the feed is requested, the capability shall return the most recent articles authored by users the caller follows, ordered most recent first, together with their total count.
@@ -29,6 +31,7 @@
 /// - R2.3 — When the feed is bounded by a limit or offset, the capability shall page the result under the same bounds and defaults as article listing.
 /// - R2.4 — While the request carries a valid session token, the capability shall report each returned article's author following indicator set.
 /// - R2.5 — If the session token is absent, expired, or invalid, then the capability shall reject the request.
+/// - R2.6 — The capability shall report each returned article's favorite indicator and count under the same rules as article listing.
 ///
 /// ### R3: Get an article
 /// - R3.1 — When an article is requested for the slug of an existing article, the capability shall return the article's full representation — slug, title, description, body, tag list, creation and update times, favorite indicator and count, and author profile.
@@ -36,6 +39,8 @@
 /// - R3.3 — While no session token identifies a caller, or the identified caller does not follow the article's author, the capability shall return the article with its author following indicator unset.
 /// - R3.4 — If a session token is presented but expired or invalid, then the capability shall reject the request.
 /// - R3.5 — If no article exists for the requested slug, then the capability shall reject the request.
+/// - R3.6 — While the identified caller has marked the article favorite, the capability shall return the article with its favorite indicator set and its favorite count as the number of marks recorded on it.
+/// - R3.7 — While no session token identifies a caller, or the identified caller has not marked the article favorite, the capability shall return the article with its favorite indicator unset and its favorite count as the number of marks recorded on it.
 ///
 /// ### R4: Create an article
 /// - R4.1 — While the request carries a valid session token, when an article is created with a title, description, and body, the capability shall record the article with the caller as author, assign it a slug derived from its title, stamp its creation and update times, and return the created article.
@@ -59,14 +64,16 @@
 /// - R6.2 — If the session token is absent, expired, or invalid, then the capability shall reject the request.
 /// - R6.3 — If no article exists for the requested slug, then the capability shall reject the request.
 /// - R6.4 — If the identified caller is not the article's author, then the capability shall reject the request.
+/// - R6.5 — When an article is removed, the capability shall remove every favorite mark recorded on it.
 ///
 /// ## Entities
 /// - Article
 ///
 /// ## Decisions
 /// - D1 — An article's slug is derived from its title at creation and stays stable across title updates. _(why: the slug is the article's public identifier — regenerating it on edit silently breaks links; rejected: regenerating the slug whenever the title changes)_
-/// - D2 — Favorite indicator, favorite count, and the favorited-by filter report unset, zero, and empty until a `favorites` capability owns favorite state. _(why: the wire contract requires the fields but nothing can be favorited yet — reporting empty is the truthful state; rejected: `article` owning favorite state now, or omitting the required fields)_
+/// - D2 — Favorite indicator, favorite count, and the favorited-by filter report unset, zero, and empty until a `favorites` capability owns favorite state. _(why: the wire contract requires the fields but nothing can be favorited yet — reporting empty is the truthful state; rejected: `article` owning favorite state now, or omitting the required fields)_ _(superseded by D4)_
 /// - D3 — An update providing no changes returns the article unmodified rather than being rejected. _(why: the official `UpdateArticle` carries no at-least-one-field requirement, unlike `UpdateUser`; rejected: rejecting empty updates as invalid)_
+/// - D4 — Favorite state is owned by `favorites`; the article reports favorite indicators, counts, and the favorited-by filter through the declared `article` → `favorites` wiring. _(why: `favorites` is now declared and owns the marks; rejected: `article` owning favorite state — per D2)_
 ///
 /// ## Out of scope
 /// - Comments on articles — owned by `comments`
