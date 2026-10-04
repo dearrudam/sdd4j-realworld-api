@@ -7,15 +7,18 @@
 
 ## Capabilities
 - **user** — manage user accounts: registration, authentication, current-user retrieval, and profile updates · [`spec`](src/main/java/org/acme/user/package-info.java)
+- **profile** — present a user's public representation and manage the follow relationships between users · [`spec`](src/main/java/org/acme/profile/package-info.java)
 
 ## Components
 <!-- projection of the system doc's ## Components wiring; nodes = capabilities, edges = declared calls/events; never inferred from code -->
 ```mermaid
 graph LR
+    profile([profile])
     user([user])
+    profile --> user
 
     classDef bc fill:#dae8fc,stroke:#6c8ebf,color:#000
-    class user bc
+    class profile,user bc
 ```
 <!-- sdd4j:generated:end -->
 
@@ -29,6 +32,9 @@ Wire contract: [`src/main/openapi/openapi.yml`](src/main/openapi/openapi.yml) (R
 | `POST` | `/api/users/login` | Authenticate (login) |
 | `GET` | `/api/user` | Current user |
 | `PUT` | `/api/user` | Update current user |
+| `GET` | `/api/profiles/{username}` | Get a profile (auth optional) |
+| `POST` | `/api/profiles/{username}/follow` | Follow a user |
+| `DELETE` | `/api/profiles/{username}/follow` | Unfollow a user |
 
 ## Running the application in dev mode
 
