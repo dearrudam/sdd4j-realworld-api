@@ -115,6 +115,13 @@ public class Articles {
         session.remove(article);
     }
 
+    public List<String> distinctTags() {
+        return session
+                .createSelectionQuery("select distinct t from Article a join a.tagList t order by t",
+                        String.class)
+                .getResultList();
+    }
+
     public Article article(String slug) {
         var article = findBySlug(slug);
         if (article == null) {
