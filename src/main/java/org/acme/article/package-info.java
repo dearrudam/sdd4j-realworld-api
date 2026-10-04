@@ -65,6 +65,7 @@
 /// - R6.3 — If no article exists for the requested slug, then the capability shall reject the request.
 /// - R6.4 — If the identified caller is not the article's author, then the capability shall reject the request.
 /// - R6.5 — When an article is removed, the capability shall remove every favorite mark recorded on it.
+/// - R6.6 — When an article is removed, the capability shall remove every comment recorded on it.
 ///
 /// ## Entities
 /// - Article
