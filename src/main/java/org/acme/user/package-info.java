@@ -20,6 +20,7 @@
 /// - R2.1 — When an email address and password matching an existing account are submitted, the capability shall return the user representation together with a JWT.
 /// - R2.2 — If no account matches the submitted email address and password, then the capability shall reject the authentication.
 /// - R2.3 — When an authentication is rejected, the capability shall not reveal whether the email address or the password caused the failure. _(why: prevents account enumeration)_
+/// - R2.4 — If the email address or password is absent or blank, then the capability shall reject the authentication.
 ///
 /// ### R3: Get the current user
 /// - R3.1 — When a request carries a valid JWT, the capability shall return the representation of the account the token identifies.
@@ -31,6 +32,10 @@
 /// - R4.5 — If the update provides a username already associated with another account, then the capability shall reject the update.
 /// - R4.6 — If the update provides no fields, then the capability shall reject the update.
 /// - R4.7 — If the update provides an email address already associated with another account, then the capability shall reject the update.
+/// - R4.8 — If the update provides a blank username, email address, or password, then the capability shall reject the update.
+/// - R4.9 — If the update provides an explicit null username, email address, or password, then the capability shall reject the update.
+/// - R4.10 — When an update provides a blank or explicit null bio or image, the capability shall store the field as unset.
+/// - R4.11 — If the update provides a password shorter than eight characters, then the capability shall reject the update.
 ///
 /// ### R5: Protect credentials
 /// - R5.1 — The capability shall never persist a plaintext password. _(why: credential storage is a security contract, not an implementation detail)_
