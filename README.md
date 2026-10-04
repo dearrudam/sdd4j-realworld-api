@@ -10,24 +10,33 @@
 - **profile** — present a user's public representation and manage the follow relationships between users · [`spec`](src/main/java/org/acme/profile/package-info.java)
 - **article** — publish, list, read, update, and delete articles — including tag, author, and favorited-by filtering and a personal feed · [`spec`](src/main/java/org/acme/article/package-info.java)
 - **favorites** — record and remove users' favorite marks on articles, returning the affected article's representation · [`spec`](src/main/java/org/acme/favorites/package-info.java)
+- **comments** — list, create, and delete comments on articles — remarks authored by identified users, ordered oldest first · [`spec`](src/main/java/org/acme/comments/package-info.java)
+- **tags** — report the distinct set of tags carried by existing articles, alphabetically ordered · [`spec`](src/main/java/org/acme/tags/package-info.java)
 
 ## Components
 <!-- projection of the system doc's ## Components wiring; nodes = capabilities, edges = declared calls/events; never inferred from code -->
 ```mermaid
 graph LR
     article([article])
+    comments([comments])
     favorites([favorites])
     profile([profile])
+    tags([tags])
     user([user])
+    article --> comments
     article --> favorites
     article --> profile
     article --> user
+    comments --> article
+    comments --> profile
+    comments --> user
     favorites --> article
     favorites --> user
     profile --> user
+    tags --> article
 
     classDef bc fill:#dae8fc,stroke:#6c8ebf,color:#000
-    class article,favorites,profile,user bc
+    class article,comments,favorites,profile,tags,user bc
 ```
 <!-- sdd4j:generated:end -->
 
@@ -52,6 +61,9 @@ Wire contract: [`src/main/openapi/openapi.yml`](src/main/openapi/openapi.yml) (R
 | `DELETE` | `/api/articles/{slug}` | Delete an article (author only) |
 | `POST` | `/api/articles/{slug}/favorite` | Favorite an article |
 | `DELETE` | `/api/articles/{slug}/favorite` | Unfavorite an article |
+| `GET` | `/api/articles/{slug}/comments` | List an article's comments (auth optional) |
+| `POST` | `/api/articles/{slug}/comments` | Comment on an article |
+| `DELETE` | `/api/articles/{slug}/comments/{id}` | Delete a comment (comment or article author) |
 
 ## Running the application in dev mode
 
