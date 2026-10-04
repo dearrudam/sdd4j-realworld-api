@@ -11,6 +11,11 @@
 /// - `favorites` → `user` — resolve a presented session token to its caller.
 /// - `favorites` → `article` — resolve a slug to its article and render the returned article representation.
 /// - `article` → `favorites` — read favorite marks to report indicators, counts, and evaluate the favorited-by filter.
+/// - `comments` → `user` — resolve a presented session token to its caller.
+/// - `comments` → `article` — resolve a slug to the article the comments belong to.
+/// - `comments` → `profile` — assemble comment author profiles carrying the caller's following indicator.
+/// - `article` → `comments` — remove the article's comments when the article is removed.
+/// - `tags` → `article` — read the tags carried by existing articles.
 ///
 /// ## Ubiquitous language
 /// - User — a registered account; owned by `user`.
@@ -21,6 +26,7 @@
 /// - Slug — an article's public identifier, derived from its title at creation; owned by `article`.
 /// - Tag — a label attached to an article; recorded by `article`.
 /// - Favorite — a user's mark of appreciation on an article; owned by `favorites`.
+/// - Comment — a user's remark on an article; owned by `comments`.
 ///
 /// ## Decisions
 /// - D1 — The wire contract conforms to the official RealWorld Conduit API spec (`openapi` v2.0.0, `specs/api/openapi.yml`, mirrored at `src/main/openapi/openapi.yml`). _(why: full official conformance chosen; rejected: custom variant with username-based login and non-unique email)_
