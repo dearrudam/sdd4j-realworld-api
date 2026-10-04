@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import org.acme.article.entity.Article;
+import org.acme.comments.control.Comments;
 import org.acme.favorites.control.Favorites;
 import org.acme.profile.control.Profiles;
 import org.acme.user.control.Rejection;
@@ -22,6 +23,9 @@ public class Articles {
 
     @Inject
     Favorites favorites;
+
+    @Inject
+    Comments comments;
 
     @Transactional
     public ArticlePage list(User caller, String tag, String author, String favorited, int limit, int offset) {
@@ -107,6 +111,7 @@ public class Articles {
         var article = article(slug);
         rejectIfNotAuthor(caller, article);
         favorites.unmarkAll(article);
+        comments.deleteAll(article);
         session.remove(article);
     }
 

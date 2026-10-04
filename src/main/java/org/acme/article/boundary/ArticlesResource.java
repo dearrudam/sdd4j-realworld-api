@@ -43,6 +43,7 @@ import static org.acme.article.ArticleRequirement.Rn.R6_2;
 import static org.acme.article.ArticleRequirement.Rn.R6_3;
 import static org.acme.article.ArticleRequirement.Rn.R6_4;
 import static org.acme.article.ArticleRequirement.Rn.R6_5;
+import static org.acme.article.ArticleRequirement.Rn.R6_6;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
@@ -137,7 +138,7 @@ public class ArticlesResource {
     @DELETE
     @Path("/{slug}")
     @PermitAll
-    @ArticleRequirement({ R6_1, R6_2, R6_3, R6_4, R6_5 })
+    @ArticleRequirement({ R6_1, R6_2, R6_3, R6_4, R6_5, R6_6 })
     public Response deleteArticle(@PathParam("slug") String slug,
             @HeaderParam("Authorization") String authorization) {
         articles.delete(caller(authorization), slug);

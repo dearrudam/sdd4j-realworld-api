@@ -100,7 +100,9 @@ public @interface ArticleRequirement {
         /// If the identified caller is not the article's author, then the capability shall reject the request.
         R6_4("R6.4", "If the identified caller is not the article's author, then the capability shall reject the request."),
         /// When an article is removed, the capability shall remove every favorite mark recorded on it.
-        R6_5("R6.5", "When an article is removed, the capability shall remove every favorite mark recorded on it.");
+        R6_5("R6.5", "When an article is removed, the capability shall remove every favorite mark recorded on it."),
+        /// When an article is removed, the capability shall remove every comment recorded on it.
+        R6_6("R6.6", "When an article is removed, the capability shall remove every comment recorded on it.");
 
         private final String id;
         private final String statement;
