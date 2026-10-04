@@ -42,6 +42,168 @@ graph LR
 ```
 <!-- sdd4j:generated:end -->
 
+## Architecture
+
+One diagram per business component — solid arrows are calls the BC makes (declared in the system doc), dotted arrows are callers of this BC.
+
+### user
+
+```mermaid
+graph LR
+    client([API Client])
+    subgraph user
+        direction LR
+        b(["Boundary<br/><br/>POST /users · POST /users/login<br/>GET /user · PUT /user"]) --> c(["Control<br/><br/>register · authenticate<br/>current · update · issue token"]) --> e(["Entity<br/><br/>User"])
+    end
+    client --> b
+    profile([profile]) -.->|resolve caller| c
+    article([article]) -.->|resolve caller| c
+    favorites([favorites]) -.->|resolve caller| c
+    comments([comments]) -.->|resolve caller| c
+
+    classDef ext fill:#fff2cc,stroke:#d6b656,color:#000,stroke-dasharray:5 5
+    classDef boundary fill:#d5e8d4,stroke:#82b366,color:#000
+    classDef control fill:#e1d5e7,stroke:#9673a6,color:#000
+    classDef entity fill:#fff2cc,stroke:#d6b656,color:#000
+    classDef bc fill:#dae8fc,stroke:#6c8ebf,color:#000
+    class client ext
+    class b boundary
+    class c control
+    class e entity
+    class profile,article,favorites,comments bc
+```
+
+### profile
+
+```mermaid
+graph LR
+    client([API Client])
+    subgraph profile
+        direction LR
+        b(["Boundary<br/><br/>GET /profiles/{u}<br/>POST · DELETE /profiles/{u}/follow"]) --> c(["Control<br/><br/>view · follow · unfollow"]) --> e(["Entity<br/><br/>Follow"])
+    end
+    client --> b
+    c -->|resolve caller, read user| user([user])
+    article([article]) -.->|author profile + following| c
+    comments([comments]) -.->|author profile + following| c
+
+    classDef ext fill:#fff2cc,stroke:#d6b656,color:#000,stroke-dasharray:5 5
+    classDef boundary fill:#d5e8d4,stroke:#82b366,color:#000
+    classDef control fill:#e1d5e7,stroke:#9673a6,color:#000
+    classDef entity fill:#fff2cc,stroke:#d6b656,color:#000
+    classDef bc fill:#dae8fc,stroke:#6c8ebf,color:#000
+    class client ext
+    class b boundary
+    class c control
+    class e entity
+    class user,article,comments bc
+```
+
+### article
+
+```mermaid
+graph LR
+    client([API Client])
+    subgraph article
+        direction LR
+        b(["Boundary<br/><br/>GET /articles · GET /articles/feed<br/>POST /articles · GET · PUT · DELETE /articles/{s}"]) --> c(["Control<br/><br/>list · feed · create · view<br/>update · delete · distinctTags"]) --> e(["Entity<br/><br/>Article + Tag"])
+    end
+    client --> b
+    c -->|resolve caller| user([user])
+    c -->|author profile + following| profile([profile])
+    c -->|favorite marks and counts| favorites([favorites])
+    c -->|cascade delete| comments([comments])
+    favorites -.->|resolve slug, render| c
+    comments -.->|resolve slug| c
+    tags([tags]) -.->|distinct tags| c
+
+    classDef ext fill:#fff2cc,stroke:#d6b656,color:#000,stroke-dasharray:5 5
+    classDef boundary fill:#d5e8d4,stroke:#82b366,color:#000
+    classDef control fill:#e1d5e7,stroke:#9673a6,color:#000
+    classDef entity fill:#fff2cc,stroke:#d6b656,color:#000
+    classDef bc fill:#dae8fc,stroke:#6c8ebf,color:#000
+    class client ext
+    class b boundary
+    class c control
+    class e entity
+    class user,profile,favorites,comments,tags bc
+```
+
+### favorites
+
+```mermaid
+graph LR
+    client([API Client])
+    subgraph favorites
+        direction LR
+        b(["Boundary<br/><br/>POST · DELETE /articles/{s}/favorite"]) --> c(["Control<br/><br/>mark · unmark · marked · counts"]) --> e(["Entity<br/><br/>Favorite"])
+    end
+    client --> b
+    c -->|resolve caller| user([user])
+    c -->|resolve slug, render article| article([article])
+    article -.->|read marks and counts| c
+
+    classDef ext fill:#fff2cc,stroke:#d6b656,color:#000,stroke-dasharray:5 5
+    classDef boundary fill:#d5e8d4,stroke:#82b366,color:#000
+    classDef control fill:#e1d5e7,stroke:#9673a6,color:#000
+    classDef entity fill:#fff2cc,stroke:#d6b656,color:#000
+    classDef bc fill:#dae8fc,stroke:#6c8ebf,color:#000
+    class client ext
+    class b boundary
+    class c control
+    class e entity
+    class user,article bc
+```
+
+### comments
+
+```mermaid
+graph LR
+    client([API Client])
+    subgraph comments
+        direction LR
+        b(["Boundary<br/><br/>GET · POST /articles/{s}/comments<br/>DELETE /articles/{s}/comments/{id}"]) --> c(["Control<br/><br/>list · create · delete · deleteAll"]) --> e(["Entity<br/><br/>Comment"])
+    end
+    client --> b
+    c -->|resolve caller| user([user])
+    c -->|resolve slug| article([article])
+    c -->|author profile + following| profile([profile])
+    article -.->|cascade delete| c
+
+    classDef ext fill:#fff2cc,stroke:#d6b656,color:#000,stroke-dasharray:5 5
+    classDef boundary fill:#d5e8d4,stroke:#82b366,color:#000
+    classDef control fill:#e1d5e7,stroke:#9673a6,color:#000
+    classDef entity fill:#fff2cc,stroke:#d6b656,color:#000
+    classDef bc fill:#dae8fc,stroke:#6c8ebf,color:#000
+    class client ext
+    class b boundary
+    class c control
+    class e entity
+    class user,article,profile bc
+```
+
+### tags
+
+```mermaid
+graph LR
+    client([API Client])
+    subgraph tags
+        direction LR
+        b(["Boundary<br/><br/>GET /tags"]) --> c(["Control<br/><br/>list"])
+    end
+    client --> b
+    c -->|distinct tags| article([article])
+
+    classDef ext fill:#fff2cc,stroke:#d6b656,color:#000,stroke-dasharray:5 5
+    classDef boundary fill:#d5e8d4,stroke:#82b366,color:#000
+    classDef control fill:#e1d5e7,stroke:#9673a6,color:#000
+    classDef bc fill:#dae8fc,stroke:#6c8ebf,color:#000
+    class client ext
+    class b boundary
+    class c control
+    class article bc
+```
+
 ## API
 
 Wire contract: [`src/main/openapi/openapi.yml`](src/main/openapi/openapi.yml) (RealWorld Conduit API v2.0.0). Base path `/api`; protected endpoints take `Authorization: Token <jwt>`; errors use `{"errors":{"field":["message"]}}`. Conformance: the upstream RealWorld Hurl suite (`specs/api/hurl` in `realworld-apps/realworld`, `HOST=http://localhost:8080 ./run-api-tests-hurl.sh`) passes 13/13 files, 154/154 requests, and runs on non-draft PRs via `.github/workflows/hurl-conformance.yml`.
