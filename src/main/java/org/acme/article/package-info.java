@@ -47,7 +47,7 @@
 /// - R4.2 — When an article is created with a tag list, the capability shall record the article carrying those tags; absent a tag list, the capability shall record the article carrying no tags.
 /// - R4.3 — When an article is created, the capability shall report its favorite indicator unset and its favorite count zero.
 /// - R4.4 — If the title, description, or body is absent or blank, then the capability shall reject the request.
-/// - R4.5 — If the slug derived from the title already identifies an existing article, then the capability shall reject the request.
+/// - R4.5 — When the slug derived from the title already identifies an existing article, the capability shall assign a distinct slug derived from the title. _(why: the official conformance suite requires duplicate titles to produce distinct slugs; rejected: rejecting the request as a slug conflict)_
 /// - R4.6 — If the session token is absent, expired, or invalid, then the capability shall reject the request.
 ///
 /// ### R5: Update an article
@@ -58,6 +58,7 @@
 /// - R5.5 — If the session token is absent, expired, or invalid, then the capability shall reject the request.
 /// - R5.6 — If no article exists for the requested slug, then the capability shall reject the request.
 /// - R5.7 — If the identified caller is not the article's author, then the capability shall reject the request.
+/// - R5.8 — If the update provides an explicit null title, description, body, or tag list, then the capability shall reject the request.
 ///
 /// ### R6: Delete an article
 /// - R6.1 — While the requested slug identifies an article authored by the identified caller, when deletion is requested, the capability shall remove the article such that it is no longer retrievable and return no content.
