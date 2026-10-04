@@ -95,6 +95,10 @@ final class ArticleApi {
         return request(auth, token).body(Map.of("article", article)).put("/api/articles/" + slug);
     }
 
+    static Response update(String slug, Auth auth, String token, String articleJson) {
+        return request(auth, token).body("{\"article\":" + articleJson + "}").put("/api/articles/" + slug);
+    }
+
     static Response delete(String slug, Auth auth, String token) {
         return request(auth, token).delete("/api/articles/" + slug);
     }

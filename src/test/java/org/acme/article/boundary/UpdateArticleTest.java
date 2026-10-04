@@ -7,6 +7,7 @@ import static org.acme.article.ArticleRequirement.Rn.R5_4;
 import static org.acme.article.ArticleRequirement.Rn.R5_5;
 import static org.acme.article.ArticleRequirement.Rn.R5_6;
 import static org.acme.article.ArticleRequirement.Rn.R5_7;
+import static org.acme.article.ArticleRequirement.Rn.R5_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -78,8 +79,9 @@ class UpdateArticleTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("rejectCases")
+    @SuppressWarnings("unchecked")
     void rejects(ArticleRequirement.Rn requirement, String key, Auth auth, Actor actor, Target target,
-            Map<String, Object> changes, int expectedStatus, String expectedErrorField) {
+            Object changes, int expectedStatus, String expectedErrorField) {
         String ownerToken = null;
         var slug = "ghost-" + key;
         if (target == Target.EXISTING) {
@@ -90,7 +92,9 @@ class UpdateArticleTest {
             case ANONYMOUS, INVALID -> null;
             case VALID -> actor == Actor.AUTHOR ? ownerToken : ArticleApi.register("a-" + key + "-other");
         };
-        var response = ArticleApi.update(slug, auth, callerToken, changes);
+        var response = changes instanceof String json
+                ? ArticleApi.update(slug, auth, callerToken, json)
+                : ArticleApi.update(slug, auth, callerToken, (Map<String, Object>) changes);
         assertThat(response.statusCode())
                 .as(requirement + " — " + requirement.statement())
                 .isEqualTo(expectedStatus);
@@ -104,7 +108,11 @@ class UpdateArticleTest {
                 arguments(R5_5, "r5-5a", Auth.ANONYMOUS, Actor.OTHER, Target.EXISTING, change(), 401, "token"),
                 arguments(R5_5, "r5-5b", Auth.INVALID, Actor.OTHER, Target.EXISTING, change(), 401, "token"),
                 arguments(R5_6, "r5-6", Auth.VALID, Actor.OTHER, Target.GHOST, change(), 404, "article"),
-                arguments(R5_7, "r5-7", Auth.VALID, Actor.OTHER, Target.EXISTING, change(), 403, "article"));
+                arguments(R5_7, "r5-7", Auth.VALID, Actor.OTHER, Target.EXISTING, change(), 403, "article"),
+                arguments(R5_8, "r5-8a", Auth.VALID, Actor.AUTHOR, Target.EXISTING, "{\"tagList\":null}", 422,
+                        "tagList"),
+                arguments(R5_8, "r5-8b", Auth.VALID, Actor.AUTHOR, Target.EXISTING, "{\"title\":null}", 422,
+                        "title"));
     }
 
     static Map<String, Object> blank(String field) {

@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 import org.acme.article.ArticleRequirement;
 import org.acme.article.boundary.ArticleApi.Auth;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -88,9 +89,21 @@ class CreateArticleTest {
                 arguments(R4_4, "r4-4a", Auth.VALID, article(null, "d", "b"), false, 422, "title"),
                 arguments(R4_4, "r4-4b", Auth.VALID, article("T", "", "b"), false, 422, "description"),
                 arguments(R4_4, "r4-4c", Auth.VALID, article("T", "d", null), false, 422, "body"),
-                arguments(R4_5, "r4-5", Auth.VALID, null, true, 409, "slug"),
                 arguments(R4_6, "r4-6a", Auth.ANONYMOUS, article("T", "d", "b"), false, 401, "token"),
                 arguments(R4_6, "r4-6b", Auth.INVALID, article("T", "d", "b"), false, 401, "token"));
+    }
+
+    @Test
+    @ArticleRequirement(R4_5)
+    void duplicateTitleGetsDistinctSlug() {
+        var token = ArticleApi.register("a-r4-5-author");
+        var body = article("Dup R4.5", "d", "b");
+        var first = ArticleApi.create(Auth.VALID, token, body);
+        var second = ArticleApi.create(Auth.VALID, token, body);
+        assertThat(first.statusCode()).isEqualTo(201);
+        assertThat(second.statusCode()).isEqualTo(201);
+        assertThat(second.jsonPath().getString("article.slug"))
+                .isNotEqualTo(first.jsonPath().getString("article.slug"));
     }
 
     static Map<String, Object> article(String title, String description, String body) {

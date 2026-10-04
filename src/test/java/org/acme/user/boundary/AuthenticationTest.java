@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static org.acme.user.UserRequirement.Rn.R2_1;
 import static org.acme.user.UserRequirement.Rn.R2_2;
 import static org.acme.user.UserRequirement.Rn.R2_3;
+import static org.acme.user.UserRequirement.Rn.R2_4;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -19,7 +20,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 @QuarkusTest
 class AuthenticationTest {
 
-    static final String INVALID_CREDENTIALS = "{\"errors\":{\"credentials\":[\"is invalid\"]}}";
+    static final String INVALID_CREDENTIALS = "{\"errors\":{\"credentials\":[\"invalid\"]}}";
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("cases")
@@ -47,7 +48,9 @@ class AuthenticationTest {
                 arguments(R2_2, null, "ghost-r2-2@conduit.test", "any-password", 401, INVALID_CREDENTIALS),
                 arguments(R2_2, "r2-2b", "r2-2b@conduit.test", "wrong-password", 401, INVALID_CREDENTIALS),
                 arguments(R2_3, null, "nobody-r2-3@conduit.test", "any-password", 401, INVALID_CREDENTIALS),
-                arguments(R2_3, "r2-3", "r2-3@conduit.test", "wrong-password", 401, INVALID_CREDENTIALS));
+                arguments(R2_3, "r2-3", "r2-3@conduit.test", "wrong-password", 401, INVALID_CREDENTIALS),
+                arguments(R2_4, null, "", "password123", 422, "{\"errors\":{\"email\":[\"can't be blank\"]}}"),
+                arguments(R2_4, null, "any@conduit.test", "", 422, "{\"errors\":{\"password\":[\"can't be blank\"]}}"));
     }
 
     static void register(String username, String password) {
