@@ -5,6 +5,7 @@ import static org.acme.article.ArticleRequirement.Rn.R6_2;
 import static org.acme.article.ArticleRequirement.Rn.R6_3;
 import static org.acme.article.ArticleRequirement.Rn.R6_4;
 import static org.acme.article.ArticleRequirement.Rn.R6_5;
+import static org.acme.article.ArticleRequirement.Rn.R6_6;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -83,5 +84,27 @@ class DeleteArticleTest {
 
     static Stream<Arguments> favoriteCases() {
         return Stream.of(arguments(R6_5, "r6-5"));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("commentCases")
+    void commentsRemoved(ArticleRequirement.Rn requirement, String key) {
+        var ownerToken = ArticleApi.register("a-" + key + "-owner");
+        var slug = ArticleApi.publish(ownerToken, "Doomed " + key, null);
+        var commenterToken = ArticleApi.register("a-" + key + "-commenter");
+        ArticleApi.comment(commenterToken, slug, "remark");
+        ArticleApi.delete(slug, Auth.VALID, ownerToken)
+                .then()
+                .statusCode(204);
+        var recreated = ArticleApi.publish(ownerToken, "Doomed " + key, null);
+        assertThat(recreated)
+                .as(requirement + " — " + requirement.statement())
+                .isEqualTo(slug);
+        var json = ArticleApi.listComments(recreated, Auth.ANONYMOUS, null).jsonPath();
+        assertThat(json.getList("comments.id", Long.class)).isEmpty();
+    }
+
+    static Stream<Arguments> commentCases() {
+        return Stream.of(arguments(R6_6, "r6-6"));
     }
 }

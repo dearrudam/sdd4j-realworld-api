@@ -99,6 +99,18 @@ final class ArticleApi {
         return request(auth, token).delete("/api/articles/" + slug);
     }
 
+    static void comment(String token, String slug, String body) {
+        request(Auth.VALID, token)
+                .body("{\"comment\":{\"body\":\"%s\"}}".formatted(body))
+                .post("/api/articles/" + slug + "/comments")
+                .then()
+                .statusCode(201);
+    }
+
+    static Response listComments(String slug, Auth auth, String token) {
+        return request(auth, token).get("/api/articles/" + slug + "/comments");
+    }
+
     static RequestSpecification request(Auth auth, String callerToken) {
         var request = given().contentType(ContentType.JSON);
         return switch (auth) {
