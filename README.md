@@ -44,7 +44,7 @@ graph LR
 
 ## Architecture
 
-One diagram per business component — solid arrows are calls the BC makes (declared in the system doc), dotted arrows are callers of this BC.
+One diagram per business component — solid arrows are the BC's declared outbound wiring, drawn from the layer that owns it (boundary resolves session tokens, control calls control, entities reference data owned by other BCs); dotted arrows are inbound callers and referrers.
 
 ### user
 
@@ -53,13 +53,17 @@ graph LR
     client([API Client])
     subgraph user
         direction LR
-        b(["Boundary<br/><br/>POST /users · POST /users/login<br/>GET /user · PUT /user"]) --> c(["Control<br/><br/>register · authenticate<br/>current · update · issue token"]) --> e(["Entity<br/><br/>User"])
+        b(["Boundary<br/><br/>POST /users · POST /users/login<br/>GET /user · PUT /user"]) --> c(["Control<br/><br/>register · authenticate · find · update<br/>issue · verify token"]) --> e(["Entity<br/><br/>User"])
     end
     client --> b
-    profile([profile]) -.->|resolve caller| c
+    profile([profile]) -.->|resolve caller · read user| c
     article([article]) -.->|resolve caller| c
     favorites([favorites]) -.->|resolve caller| c
     comments([comments]) -.->|resolve caller| c
+    profile -.->|follower · followed| e
+    article -.->|author| e
+    favorites -.->|marker| e
+    comments -.->|author| e
 
     classDef ext fill:#fff2cc,stroke:#d6b656,color:#000,stroke-dasharray:5 5
     classDef boundary fill:#d5e8d4,stroke:#82b366,color:#000
@@ -80,12 +84,14 @@ graph LR
     client([API Client])
     subgraph profile
         direction LR
-        b(["Boundary<br/><br/>GET /profiles/{u}<br/>POST · DELETE /profiles/{u}/follow"]) --> c(["Control<br/><br/>view · follow · unfollow"]) --> e(["Entity<br/><br/>Follow"])
+        b(["Boundary<br/><br/>GET /profiles/{u}<br/>POST · DELETE /profiles/{u}/follow"]) --> c(["Control<br/><br/>get · follow · unfollow · followed-by"]) --> e(["Entity<br/><br/>Follow"])
     end
     client --> b
-    c -->|resolve caller, read user| user([user])
-    article([article]) -.->|author profile + following| c
-    comments([comments]) -.->|author profile + following| c
+    b -->|resolve caller| user([user])
+    c -->|read user| user
+    e -->|follower · followed| user
+    article([article]) -.->|author profiles · follow graph| c
+    comments([comments]) -.->|author profiles| c
 
     classDef ext fill:#fff2cc,stroke:#d6b656,color:#000,stroke-dasharray:5 5
     classDef boundary fill:#d5e8d4,stroke:#82b366,color:#000
@@ -106,16 +112,19 @@ graph LR
     client([API Client])
     subgraph article
         direction LR
-        b(["Boundary<br/><br/>GET /articles · GET /articles/feed<br/>POST /articles · GET · PUT · DELETE /articles/{s}"]) --> c(["Control<br/><br/>list · feed · create · view<br/>update · delete · distinctTags"]) --> e(["Entity<br/><br/>Article + Tag"])
+        b(["Boundary<br/><br/>GET /articles · GET /articles/feed<br/>POST /articles · GET · PUT · DELETE /articles/{s}"]) --> c(["Control<br/><br/>list · feed · get · create · update · delete<br/>resolve slug · render · distinct tags"]) --> e(["Entity<br/><br/>Article"])
     end
     client --> b
-    c -->|resolve caller| user([user])
-    c -->|author profile + following| profile([profile])
-    c -->|favorite marks and counts| favorites([favorites])
+    b -->|resolve caller| user([user])
+    c -->|author profiles · follow graph| profile([profile])
+    c -->|marks · counts · unmark all| favorites([favorites])
     c -->|cascade delete| comments([comments])
-    favorites -.->|resolve slug, render| c
+    e -->|author| user
+    favorites -.->|resolve slug · render| c
     comments -.->|resolve slug| c
     tags([tags]) -.->|distinct tags| c
+    favorites -.->|marked| e
+    comments -.->|on| e
 
     classDef ext fill:#fff2cc,stroke:#d6b656,color:#000,stroke-dasharray:5 5
     classDef boundary fill:#d5e8d4,stroke:#82b366,color:#000
@@ -136,12 +145,14 @@ graph LR
     client([API Client])
     subgraph favorites
         direction LR
-        b(["Boundary<br/><br/>POST · DELETE /articles/{s}/favorite"]) --> c(["Control<br/><br/>mark · unmark · marked · counts"]) --> e(["Entity<br/><br/>Favorite"])
+        b(["Boundary<br/><br/>POST · DELETE /articles/{s}/favorite"]) --> c(["Control<br/><br/>mark · unmark · marked · counts<br/>unmark all"]) --> e(["Entity<br/><br/>Favorite"])
     end
     client --> b
-    c -->|resolve caller| user([user])
-    c -->|resolve slug, render article| article([article])
-    article -.->|read marks and counts| c
+    b -->|resolve caller| user([user])
+    c -->|resolve slug · render| article([article])
+    e -->|marker| user
+    e -->|marks| article
+    article -.->|marks · counts · unmark all| c
 
     classDef ext fill:#fff2cc,stroke:#d6b656,color:#000,stroke-dasharray:5 5
     classDef boundary fill:#d5e8d4,stroke:#82b366,color:#000
@@ -162,12 +173,14 @@ graph LR
     client([API Client])
     subgraph comments
         direction LR
-        b(["Boundary<br/><br/>GET · POST /articles/{s}/comments<br/>DELETE /articles/{s}/comments/{id}"]) --> c(["Control<br/><br/>list · create · delete · deleteAll"]) --> e(["Entity<br/><br/>Comment"])
+        b(["Boundary<br/><br/>GET · POST /articles/{s}/comments<br/>DELETE /articles/{s}/comments/{id}"]) --> c(["Control<br/><br/>list · create · delete · delete all"]) --> e(["Entity<br/><br/>Comment"])
     end
     client --> b
-    c -->|resolve caller| user([user])
+    b -->|resolve caller| user([user])
     c -->|resolve slug| article([article])
-    c -->|author profile + following| profile([profile])
+    c -->|author profiles| profile([profile])
+    e -->|author| user
+    e -->|on| article
     article -.->|cascade delete| c
 
     classDef ext fill:#fff2cc,stroke:#d6b656,color:#000,stroke-dasharray:5 5
