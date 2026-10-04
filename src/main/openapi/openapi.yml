@@ -1,6 +1,6 @@
 # Wire contract — capability slices extracted verbatim from the official
 # RealWorld Conduit API spec v2.0.0 (realworld-apps/realworld, specs/api/openapi.yml).
-# Currently: `User and Authentication`, `Profile`.
+# Currently: `User and Authentication`, `Profile`, `Articles`.
 # Conformance target — see the system doc (src/main/java/org/acme/package-info.java, decision D1).
 # Extend with the remaining tags as new capabilities land.
 openapi: 3.1.0
@@ -15,6 +15,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: 2.0.0
 tags:
+  - name: Articles
   - name: Profile
   - name: User and Authentication
 servers:
@@ -159,6 +160,155 @@ paths:
           $ref: '#/components/responses/GenericError'
       security:
         - Token: [ ]
+  /articles/feed:
+    get:
+      tags:
+        - Articles
+      summary: Get recent articles from users you follow
+      description: Get most recent articles from users you follow. Use query parameters
+        to limit. Auth is required
+      operationId: GetArticlesFeed
+      parameters:
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/MultipleArticlesResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: [ ]
+  /articles:
+    get:
+      tags:
+        - Articles
+      summary: Get recent articles globally
+      description: Get most recent articles globally. Use query parameters to filter
+        results. Auth is optional
+      operationId: GetArticles
+      parameters:
+        - name: tag
+          in: query
+          description: Filter by tag
+          schema:
+            type: string
+        - name: author
+          in: query
+          description: Filter by author (username)
+          schema:
+            type: string
+        - name: favorited
+          in: query
+          description: Filter by favorites of a user (username)
+          schema:
+            type: string
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/MultipleArticlesResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+    post:
+      tags:
+        - Articles
+      summary: Create an article
+      description: Create an article. Auth is required
+      operationId: CreateArticle
+      requestBody:
+        $ref: '#/components/requestBodies/NewArticleRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/SingleArticleResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: [ ]
+      x-codegen-request-body-name: article
+  /articles/{slug}:
+    get:
+      tags:
+        - Articles
+      summary: Get an article
+      description: Get an article. Auth not required
+      operationId: GetArticle
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article to get
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleArticleResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/GenericError'
+    put:
+      tags:
+        - Articles
+      summary: Update an article
+      description: Update an article. Auth is required
+      operationId: UpdateArticle
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateArticleRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleArticleResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: [ ]
+      x-codegen-request-body-name: article
+    delete:
+      tags:
+        - Articles
+      summary: Delete an article
+      description: Delete an article. Auth is required
+      operationId: DeleteArticle
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          $ref: '#/components/responses/EmptyOkResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: [ ]
 components:
   schemas:
     LoginUser:
@@ -246,6 +396,74 @@ components:
             - 'null'
         following:
           type: boolean
+    Article:
+      required:
+        - author
+        - body
+        - createdAt
+        - description
+        - favorited
+        - favoritesCount
+        - slug
+        - tagList
+        - title
+        - updatedAt
+      type: object
+      properties:
+        slug:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        body:
+          type: string
+        tagList:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        favorited:
+          type: boolean
+        favoritesCount:
+          type: integer
+        author:
+          $ref: '#/components/schemas/Profile'
+    NewArticle:
+      required:
+        - body
+        - description
+        - title
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        body:
+          type: string
+        tagList:
+          type: array
+          items:
+            type: string
+    UpdateArticle:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        body:
+          type: string
+        tagList:
+          type: array
+          items:
+            type: string
     GenericErrorModel:
       required:
         - errors
@@ -258,6 +476,66 @@ components:
             items:
               type: string
   responses:
+    SingleArticleResponse:
+      description: Single article
+      content:
+        application/json:
+          schema:
+            required:
+              - article
+            type: object
+            properties:
+              article:
+                $ref: '#/components/schemas/Article'
+    MultipleArticlesResponse:
+      description: Multiple articles
+      content:
+        application/json:
+          schema:
+            required:
+              - articles
+              - articlesCount
+            type: object
+            properties:
+              articles:
+                type: array
+                items:
+                  required:
+                    - author
+                    - createdAt
+                    - description
+                    - favorited
+                    - favoritesCount
+                    - slug
+                    - tagList
+                    - title
+                    - updatedAt
+                  type: object
+                  properties:
+                    slug:
+                      type: string
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    tagList:
+                      type: array
+                      items:
+                        type: string
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+                    favorited:
+                      type: boolean
+                    favoritesCount:
+                      type: integer
+                    author:
+                      $ref: '#/components/schemas/Profile'
+              articlesCount:
+                type: integer
     ProfileResponse:
       description: Profile
       content:
@@ -280,6 +558,9 @@ components:
             properties:
               user:
                 $ref: '#/components/schemas/User'
+    EmptyOkResponse:
+      description: No content
+      content: { }
     Unauthorized:
       description: Unauthorized
       content:
@@ -300,6 +581,16 @@ components:
             errors:
               username:
                 - "has already been taken"
+    Forbidden:
+      description: Forbidden. The error key identifies the resource type (article, comment, etc.)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericErrorModel'
+          example:
+            errors:
+              resource:
+                - "forbidden"
     NotFound:
       description: Not Found. The error key identifies the resource type (article, profile, comment, etc.)
       content:
@@ -357,6 +648,48 @@ components:
             properties:
               user:
                 $ref: '#/components/schemas/UpdateUser'
+    NewArticleRequest:
+      required: true
+      description: Article to create
+      content:
+        application/json:
+          schema:
+            required:
+              - article
+            type: object
+            properties:
+              article:
+                $ref: '#/components/schemas/NewArticle'
+    UpdateArticleRequest:
+      required: true
+      description: Article to update
+      content:
+        application/json:
+          schema:
+            required:
+              - article
+            type: object
+            properties:
+              article:
+                $ref: '#/components/schemas/UpdateArticle'
+  parameters:
+    offsetParam:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+      description: The number of items to skip before starting to collect the result set.
+    limitParam:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 20
+      description: The numbers of items to return.
   securitySchemes:
     Token:
       type: apiKey
