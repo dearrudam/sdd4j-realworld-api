@@ -1,8 +1,23 @@
-# sdd4j-realworld-api
+# Conduit
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+<!-- sdd4j:generated:start — projection of the specs; do not edit; `apply` regenerates from the system doc + per-capability package docs -->
+> A spec-driven implementation of the RealWorld Conduit API on Quarkus.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+**Vision:** Demonstrate SDD4J — capability specs as contracts, EARS requirements traced to tests — on a real-world-shaped API.
+
+## Capabilities
+- **user** — manage user accounts: registration, authentication, current-user retrieval, and profile updates · [`spec`](src/main/java/org/acme/user/package-info.java)
+
+## Components
+<!-- projection of the system doc's ## Components wiring; nodes = capabilities, edges = declared calls/events; never inferred from code -->
+```mermaid
+graph LR
+    user([user])
+
+    classDef bc fill:#dae8fc,stroke:#6c8ebf,color:#000
+    class user bc
+```
+<!-- sdd4j:generated:end -->
 
 ## Running the application in dev mode
 
@@ -33,7 +48,7 @@ If you want to build an _über-jar_, execute the following command:
 ./mvnw package -Dquarkus.package.jar.type=uber-jar
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+You can then execute your native executable using: `./target/sdd4j-realworld-api-1.0.0-SNAPSHOT-runner`
 
 ## Creating a native executable
 
