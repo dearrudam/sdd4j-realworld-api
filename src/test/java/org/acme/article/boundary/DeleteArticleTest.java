@@ -4,6 +4,7 @@ import static org.acme.article.ArticleRequirement.Rn.R6_1;
 import static org.acme.article.ArticleRequirement.Rn.R6_2;
 import static org.acme.article.ArticleRequirement.Rn.R6_3;
 import static org.acme.article.ArticleRequirement.Rn.R6_4;
+import static org.acme.article.ArticleRequirement.Rn.R6_5;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -59,5 +60,28 @@ class DeleteArticleTest {
                 arguments(R6_2, "r6-2b", Auth.INVALID, Actor.OTHER, Target.EXISTING, 401, "token"),
                 arguments(R6_3, "r6-3", Auth.VALID, Actor.OTHER, Target.GHOST, 404, "article"),
                 arguments(R6_4, "r6-4", Auth.VALID, Actor.OTHER, Target.EXISTING, 403, "article"));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("favoriteCases")
+    void favoriteMarksRemoved(ArticleRequirement.Rn requirement, String key) {
+        var ownerToken = ArticleApi.register("a-" + key + "-owner");
+        var slug = ArticleApi.publish(ownerToken, "Doomed " + key, null);
+        var fanToken = ArticleApi.register("a-" + key + "-fan");
+        ArticleApi.favorite(fanToken, slug);
+        ArticleApi.delete(slug, Auth.VALID, ownerToken)
+                .then()
+                .statusCode(204);
+        var recreated = ArticleApi.publish(ownerToken, "Doomed " + key, null);
+        assertThat(recreated)
+                .as(requirement + " — " + requirement.statement())
+                .isEqualTo(slug);
+        var json = ArticleApi.get(recreated, Auth.VALID, fanToken).jsonPath();
+        assertThat(json.getBoolean("article.favorited")).isFalse();
+        assertThat(json.getInt("article.favoritesCount")).isZero();
+    }
+
+    static Stream<Arguments> favoriteCases() {
+        return Stream.of(arguments(R6_5, "r6-5"));
     }
 }

@@ -5,6 +5,7 @@ import static org.acme.article.ArticleRequirement.Rn.R2_2;
 import static org.acme.article.ArticleRequirement.Rn.R2_3;
 import static org.acme.article.ArticleRequirement.Rn.R2_4;
 import static org.acme.article.ArticleRequirement.Rn.R2_5;
+import static org.acme.article.ArticleRequirement.Rn.R2_6;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -116,5 +117,31 @@ class GetFeedTest {
         return Stream.of(
                 arguments(R2_5, "r2-5a", Auth.ANONYMOUS, 401),
                 arguments(R2_5, "r2-5b", Auth.INVALID, 401));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("favoriteCases")
+    void favoriteMarks(ArticleRequirement.Rn requirement, String key) {
+        var caller = ArticleApi.register("a-" + key + "-c");
+        var author = "a-" + key + "-a";
+        var authorToken = ArticleApi.register(author);
+        var loved = ArticleApi.publish(authorToken, "Loved " + key, null);
+        var plain = ArticleApi.publish(authorToken, "Plain " + key, null);
+        ArticleApi.follow(caller, author);
+        ArticleApi.favorite(caller, loved);
+        var response = ArticleApi.feed(Auth.VALID, caller, Map.of());
+        assertThat(response.statusCode())
+                .as(requirement + " — " + requirement.statement())
+                .isEqualTo(200);
+        var json = response.jsonPath();
+        assertThat(json.getList("articles.slug")).containsExactly(plain, loved);
+        assertThat(json.getBoolean("articles[0].favorited")).isFalse();
+        assertThat(json.getInt("articles[0].favoritesCount")).isZero();
+        assertThat(json.getBoolean("articles[1].favorited")).isTrue();
+        assertThat(json.getInt("articles[1].favoritesCount")).isEqualTo(1);
+    }
+
+    static Stream<Arguments> favoriteCases() {
+        return Stream.of(arguments(R2_6, "r2-6"));
     }
 }

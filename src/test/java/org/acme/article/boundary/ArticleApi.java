@@ -77,6 +77,20 @@ final class ArticleApi {
         return request(auth, token).get("/api/articles/" + slug);
     }
 
+    static void favorite(String token, String slug) {
+        favorite(slug, Auth.VALID, token)
+                .then()
+                .statusCode(200);
+    }
+
+    static Response favorite(String slug, Auth auth, String token) {
+        return request(auth, token).post("/api/articles/" + slug + "/favorite");
+    }
+
+    static Response unfavorite(String slug, Auth auth, String token) {
+        return request(auth, token).delete("/api/articles/" + slug + "/favorite");
+    }
+
     static Response update(String slug, Auth auth, String token, Map<String, ?> article) {
         return request(auth, token).body(Map.of("article", article)).put("/api/articles/" + slug);
     }

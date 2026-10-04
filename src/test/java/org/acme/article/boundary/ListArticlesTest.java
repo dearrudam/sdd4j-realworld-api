@@ -2,6 +2,8 @@ package org.acme.article.boundary;
 
 import static org.acme.article.ArticleRequirement.Rn.R1_1;
 import static org.acme.article.ArticleRequirement.Rn.R1_10;
+import static org.acme.article.ArticleRequirement.Rn.R1_11;
+import static org.acme.article.ArticleRequirement.Rn.R1_12;
 import static org.acme.article.ArticleRequirement.Rn.R1_2;
 import static org.acme.article.ArticleRequirement.Rn.R1_3;
 import static org.acme.article.ArticleRequirement.Rn.R1_4;
@@ -67,6 +69,9 @@ class ListArticlesTest {
         var a1 = ArticleApi.publish(tokenA, "First " + key, List.of("tag-" + key));
         var a2 = ArticleApi.publish(tokenA, "Second " + key, List.of("noise-" + key));
         var b1 = ArticleApi.publish(tokenB, "Third " + key, List.of("tag-" + key));
+        if (filter == Filter.FAVORITED) {
+            ArticleApi.favorite(tokenB, a1);
+        }
         var params = switch (filter) {
             case TAG -> Map.of("tag", "tag-" + key);
             case AUTHOR -> Map.of("author", authorA);
@@ -77,6 +82,7 @@ class ListArticlesTest {
         var expected = switch (filter) {
             case TAG -> List.of(b1, a1);
             case AUTHOR -> List.of(a2, a1);
+            case FAVORITED -> List.of(a1);
             default -> List.of();
         };
         var response = ArticleApi.list(Auth.ANONYMOUS, null, params);
@@ -160,5 +166,37 @@ class ListArticlesTest {
                 arguments(R1_8, "r1-8b", Auth.VALID, false, 200, false, null),
                 arguments(R1_9, "r1-9", Auth.ANONYMOUS, false, 200, false, null),
                 arguments(R1_10, "r1-10", Auth.INVALID, false, 401, false, "token"));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("favoriteCases")
+    void favoriteMarks(ArticleRequirement.Rn requirement, String key, Auth auth,
+            boolean expectedFavorited, int expectedCount) {
+        var author = "a-" + key + "-author";
+        var authorToken = ArticleApi.register(author);
+        var loved = ArticleApi.publish(authorToken, "Loved " + key, null);
+        var plain = ArticleApi.publish(authorToken, "Plain " + key, null);
+        var callerToken = auth == Auth.ANONYMOUS ? null : ArticleApi.register("a-" + key + "-caller");
+        var otherToken = ArticleApi.register("a-" + key + "-other");
+        if (callerToken != null) {
+            ArticleApi.favorite(callerToken, loved);
+        }
+        ArticleApi.favorite(otherToken, loved);
+        var response = ArticleApi.list(auth, callerToken, Map.of("author", author));
+        assertThat(response.statusCode())
+                .as(requirement + " — " + requirement.statement())
+                .isEqualTo(200);
+        var json = response.jsonPath();
+        assertThat(json.getList("articles.slug")).containsExactly(plain, loved);
+        assertThat(json.getBoolean("articles[0].favorited")).isFalse();
+        assertThat(json.getInt("articles[0].favoritesCount")).isZero();
+        assertThat(json.getBoolean("articles[1].favorited")).isEqualTo(expectedFavorited);
+        assertThat(json.getInt("articles[1].favoritesCount")).isEqualTo(expectedCount);
+    }
+
+    static Stream<Arguments> favoriteCases() {
+        return Stream.of(
+                arguments(R1_11, "r1-11", Auth.VALID, true, 2),
+                arguments(R1_12, "r1-12", Auth.ANONYMOUS, false, 1));
     }
 }
