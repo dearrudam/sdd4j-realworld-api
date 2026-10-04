@@ -98,7 +98,7 @@ Wire contract:
 - authoritative file: `src/main/openapi/openapi.yml` — extract of the official RealWorld Conduit API spec v2.0.0 (`realworld-apps/realworld`, `specs/api/openapi.yml`), currently the `User and Authentication` slice
 - boundary operations bind to its declared paths, `{"user":{...}}` envelopes, schemas, status codes, keyed `{errors:{field:[msgs]}}` shape, and `Token` security scheme
 - extend the file per capability as specs land; never edit it to match code — the file is the source of truth for the wire shape
-- external conformance gate: the upstream Hurl suite (`specs/api/hurl` in `realworld-apps/realworld`, run with `HOST=<base>/api ./run-api-tests-hurl.sh`)
+- external conformance gate: the upstream Hurl suite (`specs/api/hurl` in `realworld-apps/realworld`, run with `HOST=<server-root> ./run-api-tests-hurl.sh` — the suite's requests already carry the `/api` prefix)
 
 Stack:
 - skill: `microprofile-server`
