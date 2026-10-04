@@ -3,6 +3,7 @@ package org.acme.profile.control;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import org.acme.profile.entity.Follow;
 import org.acme.user.control.Rejection;
 import org.acme.user.control.Users;
@@ -57,6 +58,14 @@ public class Profiles {
         if (caller.id.equals(target.id)) {
             throw Rejection.invalid("profile", "cannot be the caller");
         }
+    }
+
+    @Transactional
+    public List<User> followedBy(User caller) {
+        return session
+                .createSelectionQuery("select f.followed from Follow f where f.follower = :caller", User.class)
+                .setParameter("caller", caller)
+                .getResultList();
     }
 
     boolean follows(User caller, User target) {
