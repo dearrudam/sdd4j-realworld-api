@@ -1,5 +1,6 @@
-# Wire contract — user capability slice, extracted verbatim from the official
+# Wire contract — capability slices extracted verbatim from the official
 # RealWorld Conduit API spec v2.0.0 (realworld-apps/realworld, specs/api/openapi.yml).
+# Currently: `User and Authentication`, `Profile`.
 # Conformance target — see the system doc (src/main/java/org/acme/package-info.java, decision D1).
 # Extend with the remaining tags as new capabilities land.
 openapi: 3.1.0
@@ -14,6 +15,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: 2.0.0
 tags:
+  - name: Profile
   - name: User and Authentication
 servers:
   - url: /api
@@ -85,6 +87,78 @@ paths:
       security:
         - Token: [ ]
       x-codegen-request-body-name: body
+  /profiles/{username}:
+    get:
+      tags:
+        - Profile
+      summary: Get a profile
+      description: Get a profile of a user of the system. Auth is optional
+      operationId: GetProfileByUsername
+      parameters:
+        - name: username
+          in: path
+          description: Username of the profile to get
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/ProfileResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/GenericError'
+  /profiles/{username}/follow:
+    post:
+      tags:
+        - Profile
+      summary: Follow a user
+      description: Follow a user by username
+      operationId: FollowUserByUsername
+      parameters:
+        - name: username
+          in: path
+          description: Username of the profile you want to follow
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/ProfileResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: [ ]
+    delete:
+      tags:
+        - Profile
+      summary: Unfollow a user
+      description: Unfollow a user by username
+      operationId: UnfollowUserByUsername
+      parameters:
+        - name: username
+          in: path
+          description: Username of the profile you want to unfollow
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/ProfileResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: [ ]
 components:
   schemas:
     LoginUser:
@@ -152,6 +226,26 @@ components:
           type:
             - string
             - 'null'
+    Profile:
+      required:
+        - bio
+        - following
+        - image
+        - username
+      type: object
+      properties:
+        username:
+          type: string
+        bio:
+          type:
+            - string
+            - 'null'
+        image:
+          type:
+            - string
+            - 'null'
+        following:
+          type: boolean
     GenericErrorModel:
       required:
         - errors
@@ -164,6 +258,17 @@ components:
             items:
               type: string
   responses:
+    ProfileResponse:
+      description: Profile
+      content:
+        application/json:
+          schema:
+            required:
+              - profile
+            type: object
+            properties:
+              profile:
+                $ref: '#/components/schemas/Profile'
     UserResponse:
       description: User
       content:
@@ -195,6 +300,16 @@ components:
             errors:
               username:
                 - "has already been taken"
+    NotFound:
+      description: Not Found. The error key identifies the resource type (article, profile, comment, etc.)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericErrorModel'
+          example:
+            errors:
+              resource:
+                - "not found"
     GenericError:
       description: Unexpected error
       content:
