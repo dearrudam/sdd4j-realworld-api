@@ -9,13 +9,14 @@ info:
   description: Conduit API documentation
   contact:
     name: RealWorld
-    url: https://realworld-docs.netlify.app/
+    url: https://docs.realworld.show/
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
   version: 2.0.0
 tags:
   - name: Articles
+  - name: Favorites
   - name: Profile
   - name: User and Authentication
 servers:
@@ -303,6 +304,55 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: [ ]
+  /articles/{slug}/favorite:
+    post:
+      tags:
+        - Favorites
+      summary: Favorite an article
+      description: Favorite an article. Auth is required
+      operationId: CreateArticleFavorite
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article that you want to favorite
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleArticleResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: [ ]
+    delete:
+      tags:
+        - Favorites
+      summary: Unfavorite an article
+      description: Unfavorite an article. Auth is required
+      operationId: DeleteArticleFavorite
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article that you want to unfavorite
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleArticleResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
         '422':

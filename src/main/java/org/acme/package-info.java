@@ -8,6 +8,9 @@
 /// - `profile` → `user` — resolve a presented session token to its caller and read the target user account.
 /// - `article` → `user` — resolve a presented session token to its caller and read author accounts.
 /// - `article` → `profile` — assemble author profiles carrying the caller's following indicator and read the caller's follow graph for the feed.
+/// - `favorites` → `user` — resolve a presented session token to its caller.
+/// - `favorites` → `article` — resolve a slug to its article and render the returned article representation.
+/// - `article` → `favorites` — read favorite marks to report indicators, counts, and evaluate the favorited-by filter.
 ///
 /// ## Ubiquitous language
 /// - User — a registered account; owned by `user`.
@@ -17,7 +20,7 @@
 /// - Article — a published piece identified by its slug; owned by `article`.
 /// - Slug — an article's public identifier, derived from its title at creation; owned by `article`.
 /// - Tag — a label attached to an article; recorded by `article`.
-/// - Favorite — a user's mark of appreciation on an article; to be owned by `favorites` once declared.
+/// - Favorite — a user's mark of appreciation on an article; owned by `favorites`.
 ///
 /// ## Decisions
 /// - D1 — The wire contract conforms to the official RealWorld Conduit API spec (`openapi` v2.0.0, `specs/api/openapi.yml`, mirrored at `src/main/openapi/openapi.yml`). _(why: full official conformance chosen; rejected: custom variant with username-based login and non-unique email)_
