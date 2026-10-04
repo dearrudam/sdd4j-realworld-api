@@ -7,11 +7,29 @@
       "skillPath": "skills/conventional-commit/SKILL.md",
       "computedHash": "14abf0d09ec0f5b9fa91532b5105d16a1580af3b9cc3da33aff95ee0faecbf64"
     },
+    "diagrams": {
+      "source": "soujava/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/diagrams/SKILL.md",
+      "computedHash": "c46a6fcb960c5022a417c944c1094f7d9694c1198b6ff66ff65bccbebf3e2622"
+    },
+    "drawio": {
+      "source": "soujava/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/drawio/SKILL.md",
+      "computedHash": "d51de394f2a31300a539514fa8e2aee034a25fe25be3943695e87e0cd86e4918"
+    },
     "java-conventions": {
       "source": "soujava/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/java-conventions/SKILL.md",
       "computedHash": "2b496f733e0f581d36b1229d75e4a90346e40f2c2be0d7cd9300f449173c7e9a"
+    },
+    "mermaid": {
+      "source": "soujava/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/mermaid/SKILL.md",
+      "computedHash": "006e8bb140d3105045e8a1fcc253128e8661cabf940610e7b972ad3acd53c864"
     },
     "microprofile-server": {
       "source": "soujava/agent-skills",
@@ -23,7 +41,7 @@
       "source": "soujava/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/sdd4j/SKILL.md",
-      "computedHash": "3ac2c01dc7a6b1b92eff87fefb16247f37896e35253b83fbe8da511c6ea6e92a"
+      "computedHash": "fe787a246a71cf846c1b98493ef4b014313b0310992abde709083a7583793d8d"
     },
     "sdd4j-bce": {
       "source": "soujava/agent-skills",
