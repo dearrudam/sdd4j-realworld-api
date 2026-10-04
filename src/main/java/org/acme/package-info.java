@@ -1,4 +1,4 @@
-/// # Conduit
+/// # SDD4J RealWorld API on Quarkus
 /// > A spec-driven implementation of the RealWorld Conduit API on Quarkus.
 ///
 /// ## Vision
