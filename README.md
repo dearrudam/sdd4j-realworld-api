@@ -1,4 +1,4 @@
-# Conduit
+# SDD4J RealWorld API on Quarkus
 
 [![API Conformance](https://github.com/dearrudam/sdd4j-realworld-api/actions/workflows/hurl-conformance.yml/badge.svg)](https://github.com/dearrudam/sdd4j-realworld-api/actions/workflows/hurl-conformance.yml)
 
