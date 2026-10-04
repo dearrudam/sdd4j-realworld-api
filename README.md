@@ -9,20 +9,25 @@
 - **user** — manage user accounts: registration, authentication, current-user retrieval, and profile updates · [`spec`](src/main/java/org/acme/user/package-info.java)
 - **profile** — present a user's public representation and manage the follow relationships between users · [`spec`](src/main/java/org/acme/profile/package-info.java)
 - **article** — publish, list, read, update, and delete articles — including tag, author, and favorited-by filtering and a personal feed · [`spec`](src/main/java/org/acme/article/package-info.java)
+- **favorites** — record and remove users' favorite marks on articles, returning the affected article's representation · [`spec`](src/main/java/org/acme/favorites/package-info.java)
 
 ## Components
 <!-- projection of the system doc's ## Components wiring; nodes = capabilities, edges = declared calls/events; never inferred from code -->
 ```mermaid
 graph LR
     article([article])
+    favorites([favorites])
     profile([profile])
     user([user])
+    article --> favorites
     article --> profile
     article --> user
+    favorites --> article
+    favorites --> user
     profile --> user
 
     classDef bc fill:#dae8fc,stroke:#6c8ebf,color:#000
-    class article,profile,user bc
+    class article,favorites,profile,user bc
 ```
 <!-- sdd4j:generated:end -->
 
@@ -45,6 +50,8 @@ Wire contract: [`src/main/openapi/openapi.yml`](src/main/openapi/openapi.yml) (R
 | `GET` | `/api/articles/{slug}` | Get an article (auth optional) |
 | `PUT` | `/api/articles/{slug}` | Update an article (author only) |
 | `DELETE` | `/api/articles/{slug}` | Delete an article (author only) |
+| `POST` | `/api/articles/{slug}/favorite` | Favorite an article |
+| `DELETE` | `/api/articles/{slug}/favorite` | Unfavorite an article |
 
 ## Running the application in dev mode
 
