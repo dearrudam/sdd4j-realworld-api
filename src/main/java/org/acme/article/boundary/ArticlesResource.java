@@ -38,6 +38,7 @@ import static org.acme.article.ArticleRequirement.Rn.R5_4;
 import static org.acme.article.ArticleRequirement.Rn.R5_5;
 import static org.acme.article.ArticleRequirement.Rn.R5_6;
 import static org.acme.article.ArticleRequirement.Rn.R5_7;
+import static org.acme.article.ArticleRequirement.Rn.R5_8;
 import static org.acme.article.ArticleRequirement.Rn.R6_1;
 import static org.acme.article.ArticleRequirement.Rn.R6_2;
 import static org.acme.article.ArticleRequirement.Rn.R6_3;
@@ -47,6 +48,9 @@ import static org.acme.article.ArticleRequirement.Rn.R6_6;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonString;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -61,9 +65,12 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 import org.acme.article.ArticleRequirement;
 import org.acme.article.control.ArticlePatch;
 import org.acme.article.control.Articles;
+import org.acme.user.control.Rejection;
 import org.acme.user.control.SessionTokens;
 import org.acme.user.control.Users;
 import org.acme.user.entity.User;
@@ -127,12 +134,15 @@ public class ArticlesResource {
     @PUT
     @Path("/{slug}")
     @PermitAll
-    @ArticleRequirement({ R5_1, R5_2, R5_3, R5_4, R5_5, R5_6, R5_7 })
+    @ArticleRequirement({ R5_1, R5_2, R5_3, R5_4, R5_5, R5_6, R5_7, R5_8 })
     public ArticleResponse updateArticle(@PathParam("slug") String slug,
-            @HeaderParam("Authorization") String authorization, @Valid UpdateArticleRequest request) {
-        var changes = request.article();
-        return ArticleResponse.of(articles.update(caller(authorization), slug,
-                new ArticlePatch(changes.title(), changes.description(), changes.body(), changes.tagList())));
+            @HeaderParam("Authorization") String authorization, JsonObject body) {
+        if (body == null || !(body.get("article") instanceof JsonObject article)) {
+            throw Rejection.invalid("article", "is required");
+        }
+        var patch = new ArticlePatch(text(article, "title"), text(article, "description"),
+                text(article, "body"), tags(article));
+        return ArticleResponse.of(articles.update(caller(authorization), slug, patch));
     }
 
     @DELETE
@@ -147,5 +157,39 @@ public class ArticlesResource {
 
     User caller(String authorization) {
         return users.find(tokens.verify(authorization));
+    }
+
+    static String text(JsonObject article, String field) {
+        if (!article.containsKey(field)) {
+            return null;
+        }
+        if (article.isNull(field)) {
+            throw Rejection.invalid(field, "can't be blank");
+        }
+        if (!(article.get(field) instanceof JsonString string)) {
+            throw Rejection.invalid(field, "must be a string");
+        }
+        var value = string.getString();
+        if (value.isBlank()) {
+            throw Rejection.invalid(field, "can't be blank");
+        }
+        return value;
+    }
+
+    static List<String> tags(JsonObject article) {
+        if (!article.containsKey("tagList")) {
+            return null;
+        }
+        if (!(article.get("tagList") instanceof JsonArray array)) {
+            throw Rejection.invalid("tagList", "can't be blank");
+        }
+        var tags = new ArrayList<String>();
+        for (var element : array) {
+            if (!(element instanceof JsonString string)) {
+                throw Rejection.invalid("tagList", "must contain only strings");
+            }
+            tags.add(string.getString());
+        }
+        return tags;
     }
 }

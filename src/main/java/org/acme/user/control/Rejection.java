@@ -31,7 +31,7 @@ public class Rejection extends RuntimeException {
     }
 
     public static Rejection credentials() {
-        return new Rejection(401, "credentials", "is invalid");
+        return new Rejection(401, "credentials", "invalid");
     }
 
     public static Rejection tokenMissing() {

@@ -1,5 +1,6 @@
 package org.acme.profile.boundary;
 
+import jakarta.json.bind.annotation.JsonbProperty;
 import org.acme.profile.control.Profile;
 
 public record ProfileResponse(ProfileView profile) {
@@ -9,6 +10,7 @@ public record ProfileResponse(ProfileView profile) {
         return new ProfileResponse(new ProfileView(user.username, user.bio, user.image, profile.following()));
     }
 
-    public record ProfileView(String username, String bio, String image, boolean following) {
+    public record ProfileView(String username, @JsonbProperty(nillable = true) String bio,
+            @JsonbProperty(nillable = true) String image, boolean following) {
     }
 }

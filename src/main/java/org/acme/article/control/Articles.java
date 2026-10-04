@@ -88,10 +88,8 @@ public class Articles {
 
     @Transactional
     public ArticleView create(User caller, String title, String description, String body, List<String> tags) {
-        if (findBySlug(Article.slugify(title)) != null) {
-            throw Rejection.taken(409, "slug");
-        }
         var article = Article.draft(caller, title, description, body, tags);
+        article.slug = uniqueSlug(article.slug);
         session.persist(article);
         return view(caller, article);
     }
@@ -128,6 +126,14 @@ public class Articles {
             throw Rejection.notFound("article");
         }
         return article;
+    }
+
+    String uniqueSlug(String base) {
+        var slug = base;
+        for (var n = 2; findBySlug(slug) != null; n++) {
+            slug = base + "-" + n;
+        }
+        return slug;
     }
 
     Article findBySlug(String slug) {

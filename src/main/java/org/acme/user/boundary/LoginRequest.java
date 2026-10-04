@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record LoginRequest(@NotNull @Valid LoginUser user) {
 
-    public record LoginUser(@NotBlank @Email String email, @NotBlank String password) {
+    public record LoginUser(@NotBlank(message = "can't be blank") @Email String email,
+            @NotBlank(message = "can't be blank") String password) {
     }
 }

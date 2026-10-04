@@ -31,6 +31,8 @@ public @interface UserRequirement {
         R2_2("R2.2", "If no account matches the submitted email address and password, then the capability shall reject the authentication."),
         /// When an authentication is rejected, the capability shall not reveal whether the email address or the password caused the failure.
         R2_3("R2.3", "When an authentication is rejected, the capability shall not reveal whether the email address or the password caused the failure."),
+        /// If the email address or password is absent or blank, then the capability shall reject the authentication.
+        R2_4("R2.4", "If the email address or password is absent or blank, then the capability shall reject the authentication."),
         /// When a request carries a valid JWT, the capability shall return the representation of the account the token identifies.
         R3_1("R3.1", "When a request carries a valid JWT, the capability shall return the representation of the account the token identifies."),
         /// If the JWT is absent, expired, or invalid, then the capability shall reject the request.
@@ -45,6 +47,14 @@ public @interface UserRequirement {
         R4_6("R4.6", "If the update provides no fields, then the capability shall reject the update."),
         /// If the update provides an email address already associated with another account, then the capability shall reject the update.
         R4_7("R4.7", "If the update provides an email address already associated with another account, then the capability shall reject the update."),
+        /// If the update provides a blank username, email address, or password, then the capability shall reject the update.
+        R4_8("R4.8", "If the update provides a blank username, email address, or password, then the capability shall reject the update."),
+        /// If the update provides an explicit null username, email address, or password, then the capability shall reject the update.
+        R4_9("R4.9", "If the update provides an explicit null username, email address, or password, then the capability shall reject the update."),
+        /// When an update provides a blank or explicit null bio or image, the capability shall store the field as unset.
+        R4_10("R4.10", "When an update provides a blank or explicit null bio or image, the capability shall store the field as unset."),
+        /// If the update provides a password shorter than eight characters, then the capability shall reject the update.
+        R4_11("R4.11", "If the update provides a password shorter than eight characters, then the capability shall reject the update."),
         /// The capability shall never persist a plaintext password.
         R5_1("R5.1", "The capability shall never persist a plaintext password.");
 

@@ -7,7 +7,8 @@ import java.util.List;
 
 public record NewArticleRequest(@NotNull @Valid NewArticle article) {
 
-    public record NewArticle(@NotBlank String title, @NotBlank String description, @NotBlank String body,
-            List<String> tagList) {
+    public record NewArticle(@NotBlank(message = "can't be blank") String title,
+            @NotBlank(message = "can't be blank") String description,
+            @NotBlank(message = "can't be blank") String body, List<String> tagList) {
     }
 }

@@ -73,8 +73,8 @@ public @interface ArticleRequirement {
         R4_3("R4.3", "When an article is created, the capability shall report its favorite indicator unset and its favorite count zero."),
         /// If the title, description, or body is absent or blank, then the capability shall reject the request.
         R4_4("R4.4", "If the title, description, or body is absent or blank, then the capability shall reject the request."),
-        /// If the slug derived from the title already identifies an existing article, then the capability shall reject the request.
-        R4_5("R4.5", "If the slug derived from the title already identifies an existing article, then the capability shall reject the request."),
+        /// When the slug derived from the title already identifies an existing article, the capability shall assign a distinct slug derived from the title.
+        R4_5("R4.5", "When the slug derived from the title already identifies an existing article, the capability shall assign a distinct slug derived from the title."),
         /// If the session token is absent, expired, or invalid, then the capability shall reject the request.
         R4_6("R4.6", "If the session token is absent, expired, or invalid, then the capability shall reject the request."),
         /// While the requested slug identifies an article authored by the identified caller, when an update provides a title, description, body, or tag list, the capability shall apply the provided changes, refresh the article's update time, and return the article.
@@ -91,6 +91,8 @@ public @interface ArticleRequirement {
         R5_6("R5.6", "If no article exists for the requested slug, then the capability shall reject the request."),
         /// If the identified caller is not the article's author, then the capability shall reject the request.
         R5_7("R5.7", "If the identified caller is not the article's author, then the capability shall reject the request."),
+        /// If the update provides an explicit null title, description, body, or tag list, then the capability shall reject the request.
+        R5_8("R5.8", "If the update provides an explicit null title, description, body, or tag list, then the capability shall reject the request."),
         /// While the requested slug identifies an article authored by the identified caller, when deletion is requested, the capability shall remove the article such that it is no longer retrievable and return no content.
         R6_1("R6.1", "While the requested slug identifies an article authored by the identified caller, when deletion is requested, the capability shall remove the article such that it is no longer retrievable and return no content."),
         /// If the session token is absent, expired, or invalid, then the capability shall reject the request.

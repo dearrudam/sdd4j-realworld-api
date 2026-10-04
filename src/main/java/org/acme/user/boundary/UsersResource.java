@@ -8,6 +8,7 @@ import static org.acme.user.UserRequirement.Rn.R1_7;
 import static org.acme.user.UserRequirement.Rn.R2_1;
 import static org.acme.user.UserRequirement.Rn.R2_2;
 import static org.acme.user.UserRequirement.Rn.R2_3;
+import static org.acme.user.UserRequirement.Rn.R2_4;
 import static org.acme.user.UserRequirement.Rn.R5_1;
 
 import jakarta.inject.Inject;
@@ -45,7 +46,7 @@ public class UsersResource {
 
     @POST
     @Path("/login")
-    @UserRequirement({ R2_1, R2_2, R2_3 })
+    @UserRequirement({ R2_1, R2_2, R2_3, R2_4 })
     public UserResponse authenticateUser(@Valid LoginRequest request) {
         var credentials = request.user();
         var user = users.authenticate(credentials.email(), credentials.password());

@@ -6,6 +6,6 @@ import jakarta.validation.constraints.NotNull;
 
 public record NewCommentRequest(@NotNull @Valid NewComment comment) {
 
-    public record NewComment(@NotBlank String body) {
+    public record NewComment(@NotBlank(message = "can't be blank") String body) {
     }
 }

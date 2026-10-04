@@ -61,11 +61,11 @@ public class Users {
         if (update.password() != null) {
             user.changePassword(update.password());
         }
-        if (update.bio() != null) {
-            user.bio = update.bio();
+        if (update.bio().present()) {
+            user.bio = update.bio().value();
         }
-        if (update.image() != null) {
-            user.image = update.image();
+        if (update.image().present()) {
+            user.image = update.image().value();
         }
         return user;
     }
