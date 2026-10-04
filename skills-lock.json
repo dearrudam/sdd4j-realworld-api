@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "skills": {
+    "conventional-commit": {
+      "source": "soujava/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/conventional-commit/SKILL.md",
+      "computedHash": "14abf0d09ec0f5b9fa91532b5105d16a1580af3b9cc3da33aff95ee0faecbf64"
+    },
+    "java-conventions": {
+      "source": "soujava/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/java-conventions/SKILL.md",
+      "computedHash": "2b496f733e0f581d36b1229d75e4a90346e40f2c2be0d7cd9300f449173c7e9a"
+    },
+    "microprofile-server": {
+      "source": "soujava/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/microprofile-server/SKILL.md",
+      "computedHash": "8d9ae6939f18ed584f3d85c86e8ac10f33497f29b2055eed707c9e09fc1fc472"
+    },
+    "sdd4j": {
+      "source": "soujava/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/sdd4j/SKILL.md",
+      "computedHash": "3ac2c01dc7a6b1b92eff87fefb16247f37896e35253b83fbe8da511c6ea6e92a"
+    },
+    "sdd4j-bce": {
+      "source": "soujava/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/sdd4j-bce/SKILL.md",
+      "computedHash": "ff7ea3d06b1e837b394985a93eae2cbe326e45068a2be1a86d25da6971186214"
+    },
+    "sdd4j-ears-tests": {
+      "source": "soujava/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/sdd4j-ears-tests/SKILL.md",
+      "computedHash": "7f0b8795dbd068050986ba0c2b44412c80815db66f6aee715708777bcaf155ce"
+    }
+  }
+}
