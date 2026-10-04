@@ -40,6 +40,11 @@ public class Users {
     }
 
     @Transactional
+    public User findByUsername(String username) {
+        return findBy("username", username);
+    }
+
+    @Transactional
     public User update(long id, ProfileUpdate update) {
         var user = find(id);
         if (update.isEmpty()) {

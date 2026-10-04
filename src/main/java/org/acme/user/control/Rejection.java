@@ -22,6 +22,10 @@ public class Rejection extends RuntimeException {
         return new Rejection(status, field, "has already been taken");
     }
 
+    public static Rejection notFound(String field) {
+        return new Rejection(404, field, "not found");
+    }
+
     public static Rejection credentials() {
         return new Rejection(401, "credentials", "is invalid");
     }
